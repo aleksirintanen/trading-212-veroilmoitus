@@ -87,6 +87,13 @@ const parsedMultiline = sandbox.parseCSV(
 assert(parsedMultiline.length === 1, 'Multiline quoted CSV row count mismatch');
 assert(parsedMultiline[0].name === 'Apple\nInc', 'Multiline quoted field parsing failed');
 
+const parsedSemicolon = sandbox.parseCSV(
+  'date;type;symbol;qty;price_eur;fee_eur\n' +
+  '2025-01-15;BUY;AAPL;1;150.00;0.00\n'
+);
+assert(parsedSemicolon.length === 1, 'Semicolon CSV row count mismatch');
+assert(parsedSemicolon[0].type === 'BUY', 'Semicolon delimiter parsing failed');
+
 const parsedDate = sandbox.parseDate('2025-03-20 14:22:59');
 assert(parsedDate.getFullYear() === 2025, 'parseDate year mismatch');
 assert(parsedDate.getMonth() === 2, 'parseDate month mismatch');

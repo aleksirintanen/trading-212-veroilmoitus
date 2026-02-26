@@ -360,8 +360,64 @@
         return rows;
     }
 
+    function countDelimiterOutsideQuotes(line, delimiter) {
+        let inQuotes = false;
+        let count = 0;
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+                continue;
+            }
+
+            if (!inQuotes && char === delimiter) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    function detectCsvDelimiter(text) {
+        const candidates = [',', ';', '\t'];
+        const lines = String(text || '')
+            .split(/\r\n|\n|\r/)
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .slice(0, 5);
+
+        if (lines.length === 0) {
+            return ',';
+        }
+
+        let bestDelimiter = ',';
+        let bestScore = -1;
+
+        for (const delimiter of candidates) {
+            let score = 0;
+            for (const line of lines) {
+                score += countDelimiterOutsideQuotes(line, delimiter);
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                bestDelimiter = delimiter;
+            }
+        }
+
+        return bestScore > 0 ? bestDelimiter : ',';
+    }
+
     function parseCSV(csvText) {
         const text = String(csvText || '').replace(/^\uFEFF/, '');
+        const delimiter = detectCsvDelimiter(text);
         const rowsRaw = [];
         let currentRow = [];
         let currentCell = '';
@@ -381,7 +437,7 @@
                 continue;
             }
 
-            if (!inQuotes && char === ',') {
+            if (!inQuotes && char === delimiter) {
                 currentRow.push(currentCell.trim());
                 currentCell = '';
                 continue;

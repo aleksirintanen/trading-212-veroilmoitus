@@ -186,7 +186,9 @@
         }
 
         .csv-preview-table {
-            width: 100%;
+            width: max-content;
+            min-width: 100%;
+            table-layout: auto;
             border-collapse: collapse;
             font-size: 0.87em;
             border: 1px solid #e8edff;
@@ -201,6 +203,9 @@
             border-bottom: 1px solid #edf2ff;
             text-align: left;
             vertical-align: top;
+            white-space: nowrap !important;
+            word-break: normal !important;
+            overflow-wrap: normal !important;
         }
 
         .csv-preview-table thead {
@@ -214,8 +219,6 @@
 
         .csv-preview-table td {
             color: #2a3b62;
-            max-width: 240px;
-            word-break: break-word;
         }
 
         .csv-preview-rownum {
