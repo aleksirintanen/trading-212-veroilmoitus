@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aleksirintanen.github.io/trading-212-veroilmoitus/sitemap.xml

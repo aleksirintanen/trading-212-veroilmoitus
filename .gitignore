@@ -37,3 +37,7 @@ tmp/
 temp/
 *.tmp
 *.bak
+
+# Local generated test/export artifacts
+test-data/csv/*.pdf
+test-data/csv/from_*.csv
