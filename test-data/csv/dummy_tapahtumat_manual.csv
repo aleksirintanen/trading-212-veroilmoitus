@@ -1,0 +1,13 @@
+date,type,symbol,name,qty,price_eur,fee_eur
+2024-01-03,BUY,VWCE,Vanguard FTSE All-World (Acc),0.2854,101.20,0.00
+2024-01-17,BUY,VWCE,Vanguard FTSE All-World (Acc),0.3128,99.80,0.00
+2024-02-05,BUY,VWCE,Vanguard FTSE All-World (Acc),0.2641,103.45,0.00
+2024-02-21,BUY,VWCE,Vanguard FTSE All-World (Acc),0.2987,98.70,0.00
+2024-03-08,BUY,VWCE,Vanguard FTSE All-World (Acc),0.3412,97.95,0.00
+2024-03-26,BUY,VWCE,Vanguard FTSE All-World (Acc),0.2769,104.10,0.00
+2024-04-11,BUY,VWCE,Vanguard FTSE All-World (Acc),0.3235,96.55,0.00
+2024-04-29,BUY,VWCE,Vanguard FTSE All-World (Acc),0.2873,105.35,0.00
+2024-05-14,BUY,VWCE,Vanguard FTSE All-World (Acc),0.3548,95.90,0.00
+2024-05-31,BUY,VWCE,Vanguard FTSE All-World (Acc),0.3016,106.25,0.00
+2025-02-21,SELL,VWCE,Vanguard FTSE All-World (Acc),0.7426,112.40,0.00
+2025-02-25,SELL,VWCE,Vanguard FTSE All-World (Acc),0.6189,114.10,0.00

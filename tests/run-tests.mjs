@@ -1,0 +1,113 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+function assertThrows(fn, message) {
+  let threw = false;
+  try {
+    fn();
+  } catch (_) {
+    threw = true;
+  }
+  if (!threw) {
+    throw new Error(message);
+  }
+}
+
+const corePath = path.resolve(process.cwd(), 'docs/assets/js/core/core-engine.js');
+const coreSource = fs.readFileSync(corePath, 'utf8');
+
+const elements = new Map();
+const getEl = (id) => {
+  if (!elements.has(id)) {
+    elements.set(id, {
+      id,
+      value: id === 'formatSelect' ? 'trading212' : '',
+      innerHTML: '',
+      textContent: '',
+      checked: false,
+      files: [],
+      classList: { add() {}, remove() {}, toggle() {} }
+    });
+  }
+  return elements.get(id);
+};
+
+const sandbox = {
+  console,
+  Date,
+  Math,
+  Intl,
+  Blob,
+  URL,
+  setTimeout,
+  clearTimeout,
+  alert() {},
+  window: {},
+  document: {
+    getElementById: getEl,
+    querySelector() {
+      return { innerHTML: '', appendChild() {} };
+    },
+    addEventListener() {}
+  }
+};
+
+sandbox.window = sandbox;
+
+vm.createContext(sandbox);
+vm.runInContext(coreSource, sandbox, { filename: 'core-engine.js' });
+
+assert(typeof sandbox.parseCSV === 'function', 'parseCSV was not loaded');
+assert(typeof sandbox.parseDate === 'function', 'parseDate was not loaded');
+assert(typeof sandbox.getTaxRulesForYear === 'function', 'getTaxRulesForYear was not loaded');
+assert(typeof sandbox.estimateCapitalTax === 'function', 'estimateCapitalTax was not loaded');
+assert(typeof sandbox.runInternalTests === 'function', 'runInternalTests was not loaded');
+
+const internal = sandbox.runInternalTests();
+assert(internal?.ok === true, 'runInternalTests did not return ok=true');
+
+const parsedWithComma = sandbox.parseCSV(
+  'Action,Time,Ticker,No. of shares,Gross Total,Currency (Gross Total),Currency conversion fee\n' +
+  '"Dividend (Foo, Inc)",2025-03-20 00:00:00,FOO,0,25.00,EUR,0.00\n'
+);
+assert(parsedWithComma.length === 1, 'Quoted CSV row count mismatch');
+assert(parsedWithComma[0].action === 'Dividend (Foo, Inc)', 'Quoted comma parsing failed');
+
+const parsedMultiline = sandbox.parseCSV(
+  'date,type,symbol,qty,price_eur,fee_eur,name\n' +
+  '2025-01-15,BUY,AAPL,1,150.00,0.00,"Apple\nInc"\n'
+);
+assert(parsedMultiline.length === 1, 'Multiline quoted CSV row count mismatch');
+assert(parsedMultiline[0].name === 'Apple\nInc', 'Multiline quoted field parsing failed');
+
+const parsedDate = sandbox.parseDate('2025-03-20 14:22:59');
+assert(parsedDate.getFullYear() === 2025, 'parseDate year mismatch');
+assert(parsedDate.getMonth() === 2, 'parseDate month mismatch');
+assert(parsedDate.getDate() === 20, 'parseDate day mismatch');
+assert(parsedDate.getHours() === 14, 'parseDate hour mismatch');
+assert(parsedDate.getMinutes() === 22, 'parseDate minute mismatch');
+assert(parsedDate.getSeconds() === 59, 'parseDate second mismatch');
+
+assertThrows(
+  () => sandbox.parseDate('2025-02-30'),
+  'parseDate should reject invalid calendar dates'
+);
+
+const rules2025 = sandbox.getTaxRulesForYear(2025);
+assert(rules2025.capitalIncomeBracketEur === 30000, 'tax rule bracket mismatch for 2025');
+
+const rulesFallback = sandbox.getTaxRulesForYear(2030);
+assert(rulesFallback.capitalIncomeBracketEur === 30000, 'tax rule fallback should use latest known year');
+
+const expectedTax = 30000 * 0.30 + 10000 * 0.34;
+const estimatedTax = sandbox.estimateCapitalTax(40000, rules2025);
+assert(Math.abs(estimatedTax - expectedTax) < 1e-9, 'estimateCapitalTax mismatch with explicit rules');
+
+console.log('✅ All tests passed');

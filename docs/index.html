@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading 212 Veroilmoitus</title>
+        <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Trading 212 Veroilmoitus</h1>
+            <p>Suomalainen osakkeiden ja ETF:n verolaskenta - FIFO + hankintameno-olettama</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2 class="section-title">Lähtötiedot</h2>
+                <div class="section-subtitle">Täytä tiedot alla olevan 4-vaiheisen etenemisen mukaan.</div>
+
+                <div class="steps-guide">
+                    <ol>
+                        <li class="info-line"><span class="info-label">Valitse verovuosi:</span> <span class="info-value">Syötä laskentavuosi ennen CSV:n käsittelyä.</span></li>
+                        <li class="info-line"><span class="info-label">Hae Trading 212 CSV-tapahtumahistoria:</span> <span class="info-value">Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a></span></li>
+                        <li class="info-line"><span class="info-label">Lisää CSV laskuriin:</span> <span class="info-value">Valitse oikea CSV-muoto ja lataa tiedosto.</span></li>
+                        <li class="info-line"><span class="info-label">Laske verot:</span> <span class="info-value">Täytä halutessa valinnaiset 9A-kentät (nimi ja henkilötunnus).</span></li>
+                    </ol>
+                </div>
+
+                <div class="step-block-title">1. Valitse verovuosi</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taxYear">Verovuosi</label>
+                        <input type="number" id="taxYear" value="2025" min="2000" max="2030">
+                    </div>
+                </div>
+
+                <div class="step-block-title">2. Hae Trading 212 CSV-tapahtumahistoria</div>
+                <div class="help-text">Tarvittaessa käytä yllä olevaa Trading 212 -ohjelinkkiä CSV-viennin tekemiseen.</div>
+
+                <div class="step-block-title">3. Lisää CSV laskuriin</div>
+
+                <div class="form-group">
+                    <label for="formatSelect">CSV-muoto</label>
+                    <select id="formatSelect" onchange="updateFormatHelp()">
+                        <option value="trading212">Trading 212 (History)</option>
+                        <option value="manual">Manuaalinen muoto</option>
+                    </select>
+                    <div class="help-text">Trading 212: Lataa suoraan "History" CSV:n. Manuaalinen: Oma muoto.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="csvFile">Lataa CSV-tiedosto</label>
+                    <input type="file" id="csvFile" accept=".csv">
+                    <div id="formatHelp"></div>
+                </div>
+
+                <div class="summary-box csv-preview-box" id="csvPreviewBox">
+                    <h3 style="margin-bottom: 12px;">CSV-esikatselu</h3>
+                    <div class="help-text" id="csvPreviewMeta">Valitse tiedosto nähdäksesi esikatselun.</div>
+                    <div class="csv-preview-table-wrap" id="csvPreviewTableWrap"></div>
+                </div>
+
+                <div class="step-block-title">4. Laske verot (valinnaiset 9A-kentät alla)</div>
+                <div class="optional-note">Valinnainen 9A-liitteelle: nimi ja henkilötunnus.</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fullName">Nimi</label>
+                        <input type="text" id="fullName" placeholder="Esim. Matti Meikäläinen">
+                    </div>
+                    <div class="form-group">
+                        <label for="personalId">Henkilö-/Y-tunnus</label>
+                        <input type="text" id="personalId" placeholder="Esim. 010101-123A">
+                    </div>
+                </div>
+
+                <button id="calculateButton" onclick="calculateTaxes()">Laske verot</button>
+            </div>
+
+            <div class="error" id="errorMessage"></div>
+
+            <div class="results" id="results">
+                <h2 class="section-title">Verovuoden yhteenveto</h2>
+                <div class="section-subtitle">Alla yhteenveto sekä OmaVeroa varten tarvittavat koontitiedot.</div>
+
+                <div class="summary-box">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Luovutusvoitot</div>
+                            <div class="summary-item-value positive" id="totalGains">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Luovutustappiot</div>
+                            <div class="summary-item-value negative" id="totalLosses">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Netto luovutusvoitto</div>
+                            <div class="summary-item-value" id="netGains">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Osingot (brutto)</div>
+                            <div class="summary-item-value" id="dividendGross">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Osingot (veronalainen 85%)</div>
+                            <div class="summary-item-value" id="dividendTaxable">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Korkotulot</div>
+                            <div class="summary-item-value" id="interestIncome">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Hoito-/säilytyskulut</div>
+                            <div class="summary-item-value" id="custodyFees">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Vähennyskelpoiset kulut</div>
+                            <div class="summary-item-value" id="deductibleFees">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Pääomatulo yhteensä</div>
+                            <div class="summary-item-value" id="netCapitalIncome">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Arvioitu pääomatuloverot</div>
+                            <div class="summary-item-value" id="estimatedTax">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">OmaVero-koonti myynneistä</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Voitolliset: myynnit yhteensä</div>
+                            <div class="summary-item-value" id="profitProceedsTotal">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Voitolliset: hankintameno yhteensä</div>
+                            <div class="summary-item-value" id="profitCostTotal">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Voitolliset: voitto yhteensä</div>
+                            <div class="summary-item-value positive" id="profitGainTotal">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Tappiolliset: myynnit yhteensä</div>
+                            <div class="summary-item-value" id="lossProceedsTotal">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Tappiolliset: hankintameno yhteensä</div>
+                            <div class="summary-item-value" id="lossCostTotal">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Tappiolliset: tappio yhteensä</div>
+                            <div class="summary-item-value negative" id="lossGainTotal">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Käytetyt verosäännöt</h3>
+                    <div class="help-text" id="taxRulesInfo">Lasketaan valitun verovuoden mukaan.</div>
+                </div>
+
+                <button class="toggle-sales" onclick="toggleSales()">📋 Näytä/piilota myynnit</button>
+
+                <div class="sales-section" id="salesSection">
+                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Myynnit (FIFO + hankintameno-olettama)</h3>
+                    <div class="help-text sales-empty" id="salesEmptyState">Ei myyntejä valitulle verovuodelle.</div>
+                    <table class="sales-table" id="salesTable">
+                        <thead>
+                            <tr>
+                                <th>Luovutettu arvopaperi/arvo-osuus</th>
+                                <th>Määrä</th>
+                                <th>Hankinta-aika</th>
+                                <th>Luovutusaika</th>
+                                <th>Luovutushinta</th>
+                                <th>Hankintahinta</th>
+                                <th>Hankintakulut</th>
+                                <th>Myyntikulut</th>
+                                <th>Hankintameno-olettama</th>
+                                <th>Voitto tai tappio</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="guidance">
+                    <h3>📌 Yleiset ohjeet ilmoittamiseen</h3>
+                    <ul>
+                        <li class="info-line"><span class="info-label">Arvopaperien luovutukset:</span> <span class="info-value">Ilmoita luovutusvoitot/-tappiot lomakkeella 9A / OmaVero.</span></li>
+                        <li class="info-line"><span class="info-label">Listattujen yhtiöiden osingot:</span> <span class="info-value">Veronalainen osuus määräytyy valitun verovuoden sääntöjen mukaan.</span></li>
+                        <li class="info-line"><span class="info-label">Korkotulot:</span> <span class="info-value">Pääomatuloa. Osa koroista voi olla lähdeverotuksen piirissä palvelusta riippuen.</span></li>
+                        <li class="info-line"><span class="info-label">Hoito- ja säilytysmenot:</span> <span class="info-value">Ilmoita kokonaismäärä; 50 € omavastuu huomioidaan verotuksessa.</span></li>
+                        <li class="info-line"><span class="info-label">HUOM:</span> <span class="info-value">Tämä ei ole veroneuvontaa. Tarkista lopullinen ilmoittaminen OmaVerosta.</span></li>
+                    </ul>
+                </div>
+
+                <div class="export-buttons">
+                    <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
+                    <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
+                    <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
+                </div>
+
+                <div class="support-creator">
+                    <a href="https://ko-fi.com/aleksirintanen" target="_blank" rel="noopener noreferrer" aria-label="Support creator on Ko-fi">
+                        ☕ Support on Ko-fi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="assets/js/core/core-engine.js"></script>
+    <script src="assets/js/ui/preview-ui.js"></script>
+    <script src="assets/js/ui/pdf-export.js"></script>
+    <script src="assets/js/app-tax-calculation.js"></script>
+    <script src="assets/js/app-exports.js"></script>
+    <script src="assets/js/app-init.js"></script>
+</body>
+</html>
