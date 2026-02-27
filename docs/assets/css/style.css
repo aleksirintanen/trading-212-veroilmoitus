@@ -292,6 +292,18 @@
             color: #28a745;
         }
 
+        .summary-subsection-title {
+            margin-bottom: 10px;
+            color: #2a3d66;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .summary-subsection-title-spaced {
+            margin-top: 16px;
+        }
+
         .warnings-box {
             display: none;
             border-left-color: #f0ad4e;
@@ -612,6 +624,15 @@
 
             .summary-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .summary-subsection-title {
+                font-size: 0.95rem;
+                margin-bottom: 8px;
+            }
+
+            .summary-subsection-title-spaced {
+                margin-top: 12px;
             }
 
             .sales-table {
