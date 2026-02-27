@@ -184,12 +184,15 @@ for (const scriptPath of smokeScripts) {
 assert(typeof sandbox.AppCore === 'object', 'Smoke test: AppCore missing');
 assert(typeof sandbox.AppPreviewUi === 'object', 'Smoke test: AppPreviewUi missing');
 assert(typeof sandbox.AppPdfExport === 'object', 'Smoke test: AppPdfExport missing');
+assert(typeof sandbox.AppPdfExport.get9APdfArrayBuffer === 'function', 'Smoke test: AppPdfExport.get9APdfArrayBuffer missing');
+assert(typeof sandbox.AppPdfExport.getTaxSummaryPdfArrayBuffer === 'function', 'Smoke test: AppPdfExport.getTaxSummaryPdfArrayBuffer missing');
 assert(typeof sandbox.calculateTaxes === 'function', 'Smoke test: calculateTaxes missing');
 assert(typeof sandbox.exportAsJSON === 'function', 'Smoke test: exportAsJSON missing');
 assert(typeof sandbox.exportFifoAuditCSV === 'function', 'Smoke test: exportFifoAuditCSV missing');
 assert(typeof sandbox.exportDividendsCSV === 'function', 'Smoke test: exportDividendsCSV missing');
 assert(typeof sandbox.exportInterestsCSV === 'function', 'Smoke test: exportInterestsCSV missing');
 assert(typeof sandbox.exportTaxSummaryPdf === 'function', 'Smoke test: exportTaxSummaryPdf missing');
+assert(typeof sandbox.exportAllAsZip === 'function', 'Smoke test: exportAllAsZip missing');
 assert(typeof sandbox.toggleSales === 'function', 'Smoke test: toggleSales missing');
 assert(typeof sandbox.toggleFifoAudit === 'function', 'Smoke test: toggleFifoAudit missing');
 assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividends missing');

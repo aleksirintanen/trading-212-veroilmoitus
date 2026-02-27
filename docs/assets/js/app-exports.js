@@ -121,10 +121,9 @@ function exportAsJSON() {
     triggerDownload(data, 'application/json', `veroilmoitus_${window.lastResults.year}.json`);
 }
 
-function exportAsSellersCSV() {
+function buildSalesCsvContent() {
     if (!window.lastResults || !window.lastResults.sales.length) {
-        alert('Ei myyntejä exporttia varten');
-        return;
+        return null;
     }
 
     let csv = 'Luovutettu arvopaperi/arvo-osuus,Määrä,Hankinta-aika,Luovutusaika,Luovutushinta,Hankintahinta,Hankintakulut,Myyntikulut,Hankintameno-olettama,Voitto tai tappio\n';
@@ -145,13 +144,22 @@ function exportAsSellersCSV() {
         ].join(',') + '\n';
     }
 
+    return csv;
+}
+
+function exportAsSellersCSV() {
+    const csv = buildSalesCsvContent();
+    if (!csv) {
+        alert('Ei myyntejä exporttia varten');
+        return;
+    }
+
     triggerDownload(csv, 'text/csv;charset=utf-8;', `myynnit_${window.lastResults.year}.csv`);
 }
 
-function exportFifoAuditCSV() {
+function buildFifoAuditCsvContent() {
     if (!window.lastResults) {
-        alert('Laske ensin verot');
-        return;
+        return null;
     }
 
     const auditRows = Array.isArray(window.lastResults.fifoAuditRows)
@@ -159,8 +167,7 @@ function exportFifoAuditCSV() {
         : expandSaleRowsForReporting(window.lastResults.sales || []);
 
     if (!auditRows.length) {
-        alert('Ei FIFO-audit rivejä exporttia varten');
-        return;
+        return null;
     }
 
     let csv = 'Myynti pvm,Arvopaperi,Myyty määrä,Hankinta pvm,Lotista käytetty määrä,Lotin alkuperäinen määrä,Lotista jäljellä myynnin jälkeen,Hankintahinta osuus,Hankintakulut osuus,Myyntikulut osuus,Hankintameno-olettama osuus,Menetelmä,Voitto/tappio osuus\n';
@@ -183,19 +190,32 @@ function exportFifoAuditCSV() {
         ].join(',') + '\n';
     }
 
-    triggerDownload(csv, 'text/csv;charset=utf-8;', `fifo_audit_${window.lastResults.year}.csv`);
+    return csv;
 }
 
-function exportDividendsCSV() {
+function exportFifoAuditCSV() {
     if (!window.lastResults) {
         alert('Laske ensin verot');
         return;
     }
 
+    const csv = buildFifoAuditCsvContent();
+    if (!csv) {
+        alert('Ei FIFO-audit rivejä exporttia varten');
+        return;
+    }
+
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `fifo_audit_${window.lastResults.year}.csv`);
+}
+
+function buildDividendsCsvContent() {
+    if (!window.lastResults) {
+        return null;
+    }
+
     const rows = Array.isArray(window.lastResults.dividends) ? window.lastResults.dividends : [];
     if (!rows.length) {
-        alert('Ei osinkorivejä exporttia varten');
-        return;
+        return null;
     }
 
     let csv = 'Päivä,Arvopaperi,Brutto-osinko\n';
@@ -207,19 +227,32 @@ function exportDividendsCSV() {
         ].join(',') + '\n';
     }
 
-    triggerDownload(csv, 'text/csv;charset=utf-8;', `osingot_${window.lastResults.year}.csv`);
+    return csv;
 }
 
-function exportInterestsCSV() {
+function exportDividendsCSV() {
     if (!window.lastResults) {
         alert('Laske ensin verot');
         return;
     }
 
+    const csv = buildDividendsCsvContent();
+    if (!csv) {
+        alert('Ei osinkorivejä exporttia varten');
+        return;
+    }
+
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `osingot_${window.lastResults.year}.csv`);
+}
+
+function buildInterestsCsvContent() {
+    if (!window.lastResults) {
+        return null;
+    }
+
     const rows = Array.isArray(window.lastResults.interests) ? window.lastResults.interests : [];
     if (!rows.length) {
-        alert('Ei korkorivejä exporttia varten');
-        return;
+        return null;
     }
 
     let csv = 'Päivä,Tapahtuma,Määrä\n';
@@ -229,6 +262,21 @@ function exportInterestsCSV() {
             'Interest on cash',
             formatNumber(row.amount).replace(',', '.')
         ].join(',') + '\n';
+    }
+
+    return csv;
+}
+
+function exportInterestsCSV() {
+    if (!window.lastResults) {
+        alert('Laske ensin verot');
+        return;
+    }
+
+    const csv = buildInterestsCsvContent();
+    if (!csv) {
+        alert('Ei korkorivejä exporttia varten');
+        return;
     }
 
     triggerDownload(csv, 'text/csv;charset=utf-8;', `korot_${window.lastResults.year}.csv`);
@@ -252,6 +300,59 @@ function exportTaxSummaryPdf() {
     window.AppPdfExport.exportTaxSummaryPdf();
 }
 
+async function exportAllAsZip() {
+    if (!window.lastResults) {
+        alert('Laske ensin verot');
+        return;
+    }
+
+    if (typeof window.JSZip !== 'function') {
+        alert('ZIP-kirjasto ei latautunut. Päivitä sivu ja yritä uudelleen.');
+        return;
+    }
+
+    if (!window.AppPdfExport
+        || typeof window.AppPdfExport.get9APdfArrayBuffer !== 'function'
+        || typeof window.AppPdfExport.getTaxSummaryPdfArrayBuffer !== 'function') {
+        alert('PDF-vienti ei ole käytettävissä ZIP-pakettia varten.');
+        return;
+    }
+
+    const results = window.lastResults;
+    const zip = new window.JSZip();
+    const baseFolder = zip.folder(`veroilmoitus_${results.year}`);
+    if (!baseFolder) {
+        alert('ZIP-paketin luonti epäonnistui.');
+        return;
+    }
+
+    baseFolder.file(`veroilmoitus_${results.year}.json`, JSON.stringify(results, null, 2));
+
+    const salesCsv = buildSalesCsvContent();
+    if (salesCsv) baseFolder.file(`myynnit_${results.year}.csv`, salesCsv);
+
+    const fifoCsv = buildFifoAuditCsvContent();
+    if (fifoCsv) baseFolder.file(`fifo_audit_${results.year}.csv`, fifoCsv);
+
+    const dividendsCsv = buildDividendsCsvContent();
+    if (dividendsCsv) baseFolder.file(`osingot_${results.year}.csv`, dividendsCsv);
+
+    const interestsCsv = buildInterestsCsvContent();
+    if (interestsCsv) baseFolder.file(`korot_${results.year}.csv`, interestsCsv);
+
+    const pdfFolder = baseFolder.folder('pdf');
+    if (!pdfFolder) {
+        alert('ZIP-paketin luonti epäonnistui.');
+        return;
+    }
+
+    pdfFolder.file(`9A_liite_${results.year}.pdf`, window.AppPdfExport.get9APdfArrayBuffer(), { binary: true });
+    pdfFolder.file(`veroyhteenveto_${results.year}.pdf`, window.AppPdfExport.getTaxSummaryPdfArrayBuffer(), { binary: true });
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    triggerDownload(zipBlob, 'application/zip', `veroilmoitus_${results.year}_kaikki.zip`);
+}
+
 window.toggleSales = toggleSales;
 window.toggleFifoAudit = toggleFifoAudit;
 window.toggleDividends = toggleDividends;
@@ -265,6 +366,7 @@ window.exportDividendsCSV = exportDividendsCSV;
 window.exportInterestsCSV = exportInterestsCSV;
 window.export9APdf = export9APdf;
 window.exportTaxSummaryPdf = exportTaxSummaryPdf;
+window.exportAllAsZip = exportAllAsZip;
 
 if (typeof document !== 'undefined') {
     restoreSectionVisibilityState();

@@ -29,6 +29,7 @@ test('demoaineisto lataa tulokset ja aktivoi exportteja', async ({ page }) => {
 
   await expect(page.locator('#exportPdfButton')).toBeEnabled();
   await expect(page.locator('#exportTaxSummaryPdfButton')).toBeEnabled();
+  await expect(page.locator('#exportZipButton')).toBeEnabled();
   await expect(page.locator('#exportSalesCsvButton')).toBeEnabled();
 });
 

@@ -15,7 +15,7 @@
         URL.revokeObjectURL(pdfUrl);
     }
 
-    function export9APdf() {
+    function export9APdf(options = {}) {
         if (!global.lastResults) {
             global.alert('Laske ensin verot');
             return;
@@ -259,10 +259,16 @@
         doc.setFontSize(7);
         doc.text('Huom: Tarkista tiedot ennen OmaVeroon ilmoittamista.', margin, y);
 
-        downloadPdfDocument(doc, `9A_liite_${results.year}.pdf`);
+        const filename = `9A_liite_${results.year}.pdf`;
+        if (options.returnArrayBuffer === true) {
+            return doc.output('arraybuffer');
+        }
+
+        downloadPdfDocument(doc, filename);
+        return null;
     }
 
-    function exportTaxSummaryPdf() {
+    function exportTaxSummaryPdf(options = {}) {
         if (!global.lastResults) {
             global.alert('Laske ensin verot');
             return;
@@ -470,11 +476,27 @@
             }
         }
 
-        downloadPdfDocument(doc, `veroyhteenveto_${results.year}.pdf`);
+        const filename = `veroyhteenveto_${results.year}.pdf`;
+        if (options.returnArrayBuffer === true) {
+            return doc.output('arraybuffer');
+        }
+
+        downloadPdfDocument(doc, filename);
+        return null;
+    }
+
+    function get9APdfArrayBuffer() {
+        return export9APdf({ returnArrayBuffer: true });
+    }
+
+    function getTaxSummaryPdfArrayBuffer() {
+        return exportTaxSummaryPdf({ returnArrayBuffer: true });
     }
 
     global.AppPdfExport = {
         export9APdf,
-        exportTaxSummaryPdf
+        exportTaxSummaryPdf,
+        get9APdfArrayBuffer,
+        getTaxSummaryPdfArrayBuffer
     };
 })(window);

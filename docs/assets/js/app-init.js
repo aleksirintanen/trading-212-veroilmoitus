@@ -14,6 +14,7 @@ function validateRequiredModules() {
         if (typeof exportTaxSummaryPdf !== 'function') missing.push('exportTaxSummaryPdf (assets/js/app-exports.js)');
         if (typeof exportDividendsCSV !== 'function') missing.push('exportDividendsCSV (assets/js/app-exports.js)');
         if (typeof exportInterestsCSV !== 'function') missing.push('exportInterestsCSV (assets/js/app-exports.js)');
+        if (typeof exportAllAsZip !== 'function') missing.push('exportAllAsZip (assets/js/app-exports.js)');
 
     if (missing.length === 0) {
         return true;
