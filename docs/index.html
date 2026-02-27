@@ -19,7 +19,7 @@
     <meta name="twitter:description" content="Trading 212 -CSV:n verolaskenta (FIFO + hankintameno-olettama) ja 9A-liitteen PDF-vienti.">
 
     <title>Trading 212 Veroilmoitus</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=20260227-2">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260227-3">
 </head>
 <body>
     <div class="container">
@@ -97,7 +97,7 @@
                     </div>
                 </div>
 
-                <button id="calculateButton" onclick="calculateTaxes()">Laske verot</button>
+                <button id="calculateButton" type="button" onclick="calculateTaxes()">Laske verot</button>
             </div>
 
             <div class="error" id="errorMessage"></div>
@@ -110,8 +110,8 @@
                     <button type="button" class="demo-exit-button" id="exitDemoModeButton" onclick="exitDemoMode()">Poistu demotilasta</button>
                 </div>
                 <div class="export-buttons export-buttons-global">
-                    <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
-                    <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
+                    <button id="exportJsonButton" type="button" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
+                    <button id="exportPdfButton" type="button" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
                 </div>
 
                 <div class="summary-box">
@@ -167,8 +167,8 @@
                     </div>
 
                     <div class="summary-actions">
-                        <button class="toggle-sales" id="toggleSalesButton" onclick="toggleSales()">📋 Näytä myynnit</button>
-                        <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
+                        <button class="toggle-sales" id="toggleSalesButton" type="button" onclick="toggleSales()">📋 Näytä myynnit</button>
+                        <button id="exportSalesCsvButton" type="button" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
                     </div>
 
                     <div class="sales-section" id="salesSection">
@@ -210,8 +210,8 @@
                     </div>
 
                     <div class="summary-actions">
-                        <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">💶 Näytä osingot</button>
-                        <button id="exportDividendsCsvButton" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
+                        <button class="toggle-sales" id="toggleDividendsButton" type="button" onclick="toggleDividends()">💶 Näytä osingot</button>
+                        <button id="exportDividendsCsvButton" type="button" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
                     </div>
 
                     <div class="sales-section" id="dividendsSection">
@@ -242,8 +242,8 @@
                     </div>
 
                     <div class="summary-actions">
-                        <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">🏦 Näytä korot</button>
-                        <button id="exportInterestsCsvButton" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
+                        <button class="toggle-sales" id="toggleInterestsButton" type="button" onclick="toggleInterests()">🏦 Näytä korot</button>
+                        <button id="exportInterestsCsvButton" type="button" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
                     </div>
 
                     <div class="sales-section" id="interestsSection">
@@ -316,8 +316,8 @@
                     </div>
 
                     <div class="summary-actions">
-                        <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
-                        <button id="exportFifoAuditCsvButton" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
+                        <button class="toggle-sales" id="toggleFifoAuditButton" type="button" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
+                        <button id="exportFifoAuditCsvButton" type="button" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
                     </div>
                     <div class="sales-section" id="fifoAuditSection">
                         <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
@@ -357,12 +357,27 @@
                         <li class="info-line"><span class="info-label">HUOM:</span> <span class="info-value">Tämä ei ole veroneuvontaa. Tarkista lopullinen ilmoittaminen OmaVerosta.</span></li>
                     </ul>
                 </div>
+            </div>
 
-                <div class="support-creator">
-                    <a href="https://ko-fi.com/aleksirintanen" target="_blank" rel="noopener noreferrer" aria-label="Support creator on Ko-fi">
-                        ☕ Support on Ko-fi
-                    </a>
-                </div>
+            <div class="support-creator">
+                <a href="https://ko-fi.com/aleksirintanen" target="_blank" rel="noopener noreferrer" aria-label="Support creator on Ko-fi">
+                    ☕ Support on Ko-fi
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay-backdrop" id="exportReminderOverlay" aria-hidden="true">
+        <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="exportReminderTitle">
+            <h3 id="exportReminderTitle">Tue tekijää halutessasi</h3>
+            <p>Jos sovellus on hyödyllinen, voit halutessasi tukea tekijää pienellä lahjoituksella alla olevasta linkistä.</p>
+            <div class="overlay-support-badge">
+                <a href="https://ko-fi.com/aleksirintanen" target="_blank" rel="noopener noreferrer" aria-label="Support creator on Ko-fi">
+                    ☕ Support creator on Ko-fi
+                </a>
+            </div>
+            <div class="overlay-actions">
+                <button id="exportReminderContinueBtn" type="button">Jatka laskentaan</button>
             </div>
         </div>
     </div>
@@ -371,9 +386,9 @@
     <script src="https://cdn.jsdelivr.net/npm/decimal.js@10.4.3/decimal.min.js"></script>
     <script src="assets/js/core/core-engine.js?v=20260227-1"></script>
     <script src="assets/js/ui/preview-ui.js?v=20260227-1"></script>
-    <script src="assets/js/ui/pdf-export.js"></script>
-    <script src="assets/js/app-tax-calculation.js?v=20260227-3"></script>
-    <script src="assets/js/app-exports.js?v=20260227-4"></script>
+    <script src="assets/js/ui/pdf-export.js?v=20260227-1"></script>
+    <script src="assets/js/app-tax-calculation.js?v=20260227-4"></script>
+    <script src="assets/js/app-exports.js?v=20260227-6"></script>
     <script src="assets/js/app-init.js?v=20260227-5"></script>
 </body>
 </html>

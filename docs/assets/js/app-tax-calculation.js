@@ -50,7 +50,58 @@ const setExportButtonsState = previewUiCalc.setExportButtonsState || (() => {});
 const setCalculatingState = previewUiCalc.setCalculatingState || (() => {});
 const setSalesEmptyState = previewUiCalc.setSalesEmptyState || (() => {});
 
+function showExportBehaviorReminderOnce() {
+    const storageKey = 't212_export_behavior_notice_shown';
+
+    let wasShown = !!window.__exportBehaviorNoticeShown;
+    try {
+        if (!wasShown && typeof sessionStorage !== 'undefined') {
+            wasShown = sessionStorage.getItem(storageKey) === '1';
+        }
+    } catch (_) {
+    }
+
+    if (wasShown) return true;
+
+    const overlay = document.getElementById('exportReminderOverlay');
+    const continueButton = document.getElementById('exportReminderContinueBtn');
+    if (!overlay || !continueButton || !overlay.classList) {
+        window.__exportBehaviorNoticeShown = true;
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem(storageKey, '1');
+            }
+        } catch (_) {
+        }
+        return true;
+    }
+
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    continueButton.onclick = () => {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+
+        window.__exportBehaviorNoticeShown = true;
+        try {
+            if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem(storageKey, '1');
+            }
+        } catch (_) {
+        }
+
+        calculateTaxes();
+    };
+
+    return false;
+}
+
 function calculateTaxes() {
+    if (!showExportBehaviorReminderOnce()) {
+        return;
+    }
+
     const errorElement = document.getElementById('errorMessage');
     errorElement.classList.remove('show');
     errorElement.textContent = '';

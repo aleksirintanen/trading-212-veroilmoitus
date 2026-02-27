@@ -8,6 +8,24 @@ const {
     expandSaleRowsForReporting
 } = exportsCore;
 
+function triggerDownload(content, mimeType, filename) {
+    const preferredType = /json|csv|text|pdf/i.test(String(mimeType || ''))
+        ? 'application/octet-stream'
+        : mimeType;
+    const blob = new Blob([content], { type: preferredType || 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_self';
+    link.download = filename;
+    link.setAttribute('download', filename);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
 function toggleSales() {
     toggleSection('salesSection', 'toggleSalesButton', 'myynnit', '📋');
 }
@@ -61,13 +79,7 @@ function exportAsJSON() {
     }
 
     const data = JSON.stringify(window.lastResults, null, 2);
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `veroilmoitus_${window.lastResults.year}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(data, 'application/json', `veroilmoitus_${window.lastResults.year}.json`);
 }
 
 function exportAsSellersCSV() {
@@ -94,13 +106,7 @@ function exportAsSellersCSV() {
         ].join(',') + '\n';
     }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `myynnit_${window.lastResults.year}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `myynnit_${window.lastResults.year}.csv`);
 }
 
 function exportFifoAuditCSV() {
@@ -138,13 +144,7 @@ function exportFifoAuditCSV() {
         ].join(',') + '\n';
     }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `fifo_audit_${window.lastResults.year}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `fifo_audit_${window.lastResults.year}.csv`);
 }
 
 function exportDividendsCSV() {
@@ -168,13 +168,7 @@ function exportDividendsCSV() {
         ].join(',') + '\n';
     }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `osingot_${window.lastResults.year}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `osingot_${window.lastResults.year}.csv`);
 }
 
 function exportInterestsCSV() {
@@ -198,13 +192,7 @@ function exportInterestsCSV() {
         ].join(',') + '\n';
     }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `korot_${window.lastResults.year}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(csv, 'text/csv;charset=utf-8;', `korot_${window.lastResults.year}.csv`);
 }
 
 function export9APdf() {

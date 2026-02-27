@@ -243,7 +243,19 @@
         doc.setFontSize(7);
         doc.text('Huom: Tarkista tiedot ennen OmaVeroon ilmoittamista.', margin, y);
 
-        doc.save(`9A_liite_${results.year}.pdf`);
+        const pdfArrayBuffer = doc.output('arraybuffer');
+        const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/octet-stream' });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.target = '_self';
+        link.download = `9A_liite_${results.year}.pdf`;
+        link.setAttribute('download', `9A_liite_${results.year}.pdf`);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(pdfUrl);
     }
 
     global.AppPdfExport = {
