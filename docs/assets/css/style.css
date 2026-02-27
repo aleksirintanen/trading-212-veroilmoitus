@@ -177,6 +177,21 @@
             box-shadow: 0 6px 20px rgba(33, 60, 121, 0.08);
         }
 
+        .top-notice {
+            border-left-color: #f0ad4e;
+            background: #fffaf0;
+        }
+
+        .top-notice-title {
+            margin-bottom: 8px;
+            color: #7a5c00;
+        }
+
+        .top-notice-text {
+            line-height: 1.55;
+            color: #4b3b0f;
+        }
+
         .csv-preview-box {
             display: none;
             margin-top: 12px;
@@ -821,6 +836,10 @@
             }
 
             .export-buttons button {
+                width: 100%;
+            }
+
+            .summary-actions button {
                 width: 100%;
             }
         }
