@@ -264,10 +264,24 @@ function calculateTaxes() {
                         formatCurrency(sale.gainEur)
                     ];
 
-                    for (const value of cells) {
+                    for (let index = 0; index < cells.length; index++) {
+                        const value = cells[index];
                         const cell = document.createElement('td');
                         cell.textContent = value;
                         row.appendChild(cell);
+                    }
+
+                    const gainCell = row.lastElementChild;
+                    if (gainCell) {
+                        if (sale.gainEur > 0) {
+                            gainCell.classList.add('sales-gain-positive');
+                            gainCell.style.color = '#28a745';
+                            gainCell.style.fontWeight = '600';
+                        } else if (sale.gainEur < 0) {
+                            gainCell.classList.add('sales-gain-negative');
+                            gainCell.style.color = '#dc3545';
+                            gainCell.style.fontWeight = '600';
+                        }
                     }
 
                     tbody.appendChild(row);

@@ -19,7 +19,7 @@
     <meta name="twitter:description" content="Trading 212 -CSV:n verolaskenta (FIFO + hankintameno-olettama) ja 9A-liitteen PDF-vienti.">
 
     <title>Trading 212 Veroilmoitus</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=20260226-1">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260227-1">
 </head>
 <body>
     <div class="container">
@@ -185,23 +185,25 @@
                 <div class="sales-section" id="salesSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Myynnit (FIFO + hankintameno-olettama)</h3>
                     <div class="help-text sales-empty" id="salesEmptyState">Ei myyntejä valitulle verovuodelle.</div>
-                    <table class="sales-table" id="salesTable">
-                        <thead>
-                            <tr>
-                                <th>Luovutettu arvopaperi/arvo-osuus</th>
-                                <th>Määrä</th>
-                                <th>Hankinta-aika</th>
-                                <th>Luovutusaika</th>
-                                <th>Luovutushinta</th>
-                                <th>Hankintahinta</th>
-                                <th>Hankintakulut</th>
-                                <th>Myyntikulut</th>
-                                <th>Hankintameno-olettama</th>
-                                <th>Voitto tai tappio</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <div class="sales-table-wrap">
+                        <table class="sales-table" id="salesTable">
+                            <thead>
+                                <tr>
+                                    <th>Luovutettu arvopaperi/arvo-osuus</th>
+                                    <th>Määrä</th>
+                                    <th>Hankinta-aika</th>
+                                    <th>Luovutusaika</th>
+                                    <th>Luovutushinta</th>
+                                    <th>Hankintahinta</th>
+                                    <th>Hankintakulut</th>
+                                    <th>Myyntikulut</th>
+                                    <th>Hankintameno-olettama</th>
+                                    <th>Voitto tai tappio</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="guidance">
@@ -234,7 +236,7 @@
     <script src="assets/js/core/core-engine.js"></script>
     <script src="assets/js/ui/preview-ui.js"></script>
     <script src="assets/js/ui/pdf-export.js"></script>
-    <script src="assets/js/app-tax-calculation.js"></script>
+    <script src="assets/js/app-tax-calculation.js?v=20260227-1"></script>
     <script src="assets/js/app-exports.js"></script>
     <script src="assets/js/app-init.js"></script>
 </body>
