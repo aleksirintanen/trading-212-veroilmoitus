@@ -110,8 +110,8 @@
                     <button type="button" class="demo-exit-button" id="exitDemoModeButton" onclick="exitDemoMode()">Poistu demotilasta</button>
                 </div>
                 <div class="export-buttons export-buttons-global">
-                    <button id="exportJsonButton" type="button" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
                     <button id="exportPdfButton" type="button" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
+                    <button id="exportTaxSummaryPdfButton" type="button" onclick="exportTaxSummaryPdf()" disabled>📄 Lataa veroyhteenveto PDF</button>
                 </div>
 
                 <div class="summary-box">
@@ -364,6 +364,13 @@
                     ☕ Support on Ko-fi
                 </a>
             </div>
+
+            <details class="advanced-actions">
+                <summary>Lisätoiminnot</summary>
+                <div class="export-buttons advanced-export-buttons">
+                    <button id="exportJsonButton" type="button" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
+                </div>
+            </details>
         </div>
     </div>
 
@@ -390,9 +397,9 @@
     <script src="https://cdn.jsdelivr.net/npm/decimal.js@10.4.3/decimal.min.js"></script>
     <script src="assets/js/core/core-engine.js?v=20260227-1"></script>
     <script src="assets/js/ui/preview-ui.js?v=20260227-1"></script>
-    <script src="assets/js/ui/pdf-export.js?v=20260227-1"></script>
+    <script src="assets/js/ui/pdf-export.js?v=20260227-2"></script>
     <script src="assets/js/app-tax-calculation.js?v=20260227-4"></script>
-    <script src="assets/js/app-exports.js?v=20260227-6"></script>
+    <script src="assets/js/app-exports.js?v=20260227-7"></script>
     <script src="assets/js/app-init.js?v=20260227-5"></script>
 </body>
 </html>

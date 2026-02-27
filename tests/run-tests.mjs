@@ -189,6 +189,7 @@ assert(typeof sandbox.exportAsJSON === 'function', 'Smoke test: exportAsJSON mis
 assert(typeof sandbox.exportFifoAuditCSV === 'function', 'Smoke test: exportFifoAuditCSV missing');
 assert(typeof sandbox.exportDividendsCSV === 'function', 'Smoke test: exportDividendsCSV missing');
 assert(typeof sandbox.exportInterestsCSV === 'function', 'Smoke test: exportInterestsCSV missing');
+assert(typeof sandbox.exportTaxSummaryPdf === 'function', 'Smoke test: exportTaxSummaryPdf missing');
 assert(typeof sandbox.toggleSales === 'function', 'Smoke test: toggleSales missing');
 assert(typeof sandbox.toggleFifoAudit === 'function', 'Smoke test: toggleFifoAudit missing');
 assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividends missing');

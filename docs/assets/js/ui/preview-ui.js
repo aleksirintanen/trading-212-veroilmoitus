@@ -28,9 +28,11 @@
         const dividendsCsvButton = document.getElementById('exportDividendsCsvButton');
         const interestsCsvButton = document.getElementById('exportInterestsCsvButton');
         const pdfButton = document.getElementById('exportPdfButton');
+        const summaryPdfButton = document.getElementById('exportTaxSummaryPdfButton');
 
         if (jsonButton) jsonButton.disabled = !hasResults;
         if (pdfButton) pdfButton.disabled = !hasResults;
+        if (summaryPdfButton) summaryPdfButton.disabled = !hasResults;
         if (salesCsvButton) salesCsvButton.disabled = !(hasResults && hasSales);
         if (fifoAuditCsvButton) fifoAuditCsvButton.disabled = !(hasResults && hasSales);
         if (dividendsCsvButton) dividendsCsvButton.disabled = !(hasResults && hasDividends);

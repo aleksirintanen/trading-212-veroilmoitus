@@ -1,4 +1,20 @@
 (function(global) {
+    function downloadPdfDocument(doc, filename) {
+        const pdfArrayBuffer = doc.output('arraybuffer');
+        const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/octet-stream' });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.target = '_self';
+        link.download = filename;
+        link.setAttribute('download', filename);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(pdfUrl);
+    }
+
     function export9APdf() {
         if (!global.lastResults) {
             global.alert('Laske ensin verot');
@@ -243,22 +259,222 @@
         doc.setFontSize(7);
         doc.text('Huom: Tarkista tiedot ennen OmaVeroon ilmoittamista.', margin, y);
 
-        const pdfArrayBuffer = doc.output('arraybuffer');
-        const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/octet-stream' });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.target = '_self';
-        link.download = `9A_liite_${results.year}.pdf`;
-        link.setAttribute('download', `9A_liite_${results.year}.pdf`);
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(pdfUrl);
+        downloadPdfDocument(doc, `9A_liite_${results.year}.pdf`);
+    }
+
+    function exportTaxSummaryPdf() {
+        if (!global.lastResults) {
+            global.alert('Laske ensin verot');
+            return;
+        }
+
+        if (!global.jspdf || !global.jspdf.jsPDF) {
+            global.alert('PDF-kirjasto ei latautunut. Yritä päivittää sivu ja kokeile uudelleen.');
+            return;
+        }
+
+        const results = global.lastResults;
+        const { jsPDF } = global.jspdf;
+        const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+
+        const margin = 24;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const contentWidth = pageWidth - margin * 2;
+        let y = margin;
+
+        const euro = (value) => `${Number(value || 0).toFixed(2)} €`;
+        const toDate = (value) => {
+            if (value instanceof Date) return value.toLocaleDateString('fi-FI');
+            if (!value) return '-';
+            return new Date(value).toLocaleDateString('fi-FI');
+        };
+
+        const fullName = (document.getElementById('fullName')?.value || '').trim() || '-';
+        const personalId = (document.getElementById('personalId')?.value || '').trim() || '-';
+        const reportRows = typeof global.expandSaleRowsForReporting === 'function'
+            ? global.expandSaleRowsForReporting(results.sales || [])
+            : (results.sales || []);
+
+        function ensureSpace(requiredHeight) {
+            if (y + requiredHeight <= pageHeight - margin) return;
+            doc.addPage();
+            y = margin;
+        }
+
+        function addTitle(title, subtitle) {
+            ensureSpace(52);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text(title, margin, y);
+            y += 18;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(subtitle, margin, y);
+            y += 8;
+            doc.setDrawColor(210);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 14;
+        }
+
+        function addSectionTitle(title) {
+            ensureSpace(20);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text(title, margin, y);
+            y += 12;
+        }
+
+        function addKeyValueRows(rows) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            for (const [label, value] of rows) {
+                ensureSpace(14);
+                doc.text(`${label}:`, margin + 2, y);
+                doc.text(String(value), pageWidth - margin - 2, y, { align: 'right' });
+                y += 12;
+            }
+            y += 6;
+        }
+
+        function addTable(headers, rows, columnWidths) {
+            const rowHeight = 12;
+            const widths = columnWidths && columnWidths.length === headers.length
+                ? columnWidths
+                : headers.map(() => contentWidth / headers.length);
+
+            ensureSpace(24);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            let x = margin;
+            for (let index = 0; index < headers.length; index++) {
+                doc.text(headers[index], x + 2, y);
+                x += widths[index];
+            }
+            y += 6;
+            doc.setDrawColor(180);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 8;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            for (const row of rows) {
+                ensureSpace(rowHeight + 4);
+                x = margin;
+                for (let index = 0; index < headers.length; index++) {
+                    const text = String(row[index] ?? '-');
+                    const maxWidth = Math.max(10, widths[index] - 4);
+                    const cellText = doc.splitTextToSize(text, maxWidth)[0] || '-';
+                    doc.text(cellText, x + 2, y);
+                    x += widths[index];
+                }
+                y += rowHeight;
+            }
+
+            y += 4;
+            doc.setDrawColor(210);
+            doc.line(margin, y, pageWidth - margin, y);
+            y += 10;
+        }
+
+        addTitle(
+            'Oma veroyhteenvetoraportti',
+            `Verovuosi ${results.year} | Nimi: ${fullName} | Henkilö-/Y-tunnus: ${personalId}`
+        );
+
+        addSectionTitle('Yhteenveto');
+        addKeyValueRows([
+            ['Luovutusvoitot', euro(results.totalGains)],
+            ['Luovutustappiot', euro(results.totalLosses)],
+            ['Netto luovutusvoitto', euro(results.netGains)],
+            ['Osingot (brutto)', euro(results.dividendsGross)],
+            ['Osingot (veronalainen)', euro(results.dividendsTaxable)],
+            ['Korkotulot', euro(results.interestIncome)],
+            ['Pääomatulo yhteensä', euro(results.netCapitalIncome)],
+            ['Arvioitu pääomatulovero', euro(results.estimatedTax)]
+        ]);
+
+        addSectionTitle('Kuluyhteenveto');
+        addKeyValueRows([
+            ['Hoito-/säilytyskulut', euro(results.custodyFees)],
+            ['Vähennyskelpoiset kulut', euro(results.custodyDeductible)],
+            ['Hankintakulut kohdistettu FIFO-loteille', euro(results.allocatedAcquisitionFees)],
+            ['Myyntikulut kohdistettu myynneille', euro(results.allocatedSellFees)]
+        ]);
+
+        addSectionTitle('Myynnit');
+        if (!reportRows.length) {
+            addKeyValueRows([['Myyntejä', 'Ei rivejä']]);
+        } else {
+            addTable(
+                ['Arvopaperi', 'Määrä', 'Hankinta', 'Myynti', 'Luovutushinta', 'Hankintameno', 'Voitto/tappio'],
+                reportRows.map((sale) => [
+                    typeof global.formatSaleInstrumentDisplay === 'function'
+                        ? global.formatSaleInstrumentDisplay(sale)
+                        : (sale.symbol || '-'),
+                    typeof global.formatQuantity === 'function' ? global.formatQuantity(sale.qty) : String(sale.qty ?? '-'),
+                    toDate(sale.acquiredDate),
+                    toDate(sale.soldDate),
+                    euro(sale.proceedsEur),
+                    euro((sale.acquisitionPriceEur || 0) + (sale.acquisitionFeesEur || 0)),
+                    euro(sale.gainEur)
+                ]),
+                [120, 52, 66, 66, 74, 74, 74]
+            );
+        }
+
+        addSectionTitle('Osingot');
+        const dividends = Array.isArray(results.dividends) ? results.dividends : [];
+        if (!dividends.length) {
+            addKeyValueRows([['Osinkoja', 'Ei rivejä']]);
+        } else {
+            addTable(
+                ['Päivä', 'Arvopaperi', 'Brutto-osinko'],
+                dividends.map((row) => [
+                    toDate(row.date),
+                    typeof global.formatSaleInstrumentDisplay === 'function'
+                        ? global.formatSaleInstrumentDisplay({ symbol: row.symbol, symbolName: row.symbolName })
+                        : (row.symbol || '-'),
+                    euro(row.amount)
+                ]),
+                [90, 290, 90]
+            );
+        }
+
+        addSectionTitle('Korot');
+        const interests = Array.isArray(results.interests) ? results.interests : [];
+        if (!interests.length) {
+            addKeyValueRows([['Korkoja', 'Ei rivejä']]);
+        } else {
+            addTable(
+                ['Päivä', 'Tapahtuma', 'Määrä'],
+                interests.map((row) => [
+                    toDate(row.date),
+                    'Interest on cash',
+                    euro(row.amount)
+                ]),
+                [90, 290, 90]
+            );
+        }
+
+        const warnings = Array.isArray(results.dataWarnings) ? results.dataWarnings : [];
+        if (warnings.length) {
+            addSectionTitle('Varoitukset datassa');
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            for (const warning of warnings) {
+                ensureSpace(12);
+                doc.text(`• ${warning}`, margin + 2, y);
+                y += 10;
+            }
+        }
+
+        downloadPdfDocument(doc, `veroyhteenveto_${results.year}.pdf`);
     }
 
     global.AppPdfExport = {
-        export9APdf
+        export9APdf,
+        exportTaxSummaryPdf
     };
 })(window);

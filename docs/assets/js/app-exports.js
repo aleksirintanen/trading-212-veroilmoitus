@@ -204,6 +204,15 @@ function export9APdf() {
     window.AppPdfExport.export9APdf();
 }
 
+function exportTaxSummaryPdf() {
+    if (!window.AppPdfExport || typeof window.AppPdfExport.exportTaxSummaryPdf !== 'function') {
+        alert('Yhteenveto-PDF-vienti ei ole käytettävissä tällä hetkellä.');
+        return;
+    }
+
+    window.AppPdfExport.exportTaxSummaryPdf();
+}
+
 window.toggleSales = toggleSales;
 window.toggleFifoAudit = toggleFifoAudit;
 window.toggleDividends = toggleDividends;
@@ -215,6 +224,7 @@ window.exportFifoAuditCSV = exportFifoAuditCSV;
 window.exportDividendsCSV = exportDividendsCSV;
 window.exportInterestsCSV = exportInterestsCSV;
 window.export9APdf = export9APdf;
+window.exportTaxSummaryPdf = exportTaxSummaryPdf;
 
 if (typeof document !== 'undefined') {
     refreshToggleButtonsState();

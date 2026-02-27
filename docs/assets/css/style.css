@@ -569,6 +569,25 @@
             margin-top: 0;
         }
 
+        .advanced-actions {
+            margin-top: 16px;
+            background: #f8faff;
+            border: 1px solid #e3ebff;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .advanced-actions summary {
+            cursor: pointer;
+            color: #435b93;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        .advanced-export-buttons {
+            margin-top: 10px;
+        }
+
         .section-title {
             font-size: 1.18rem;
             font-weight: 700;

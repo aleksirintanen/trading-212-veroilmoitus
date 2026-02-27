@@ -11,6 +11,7 @@ function validateRequiredModules() {
     if (typeof exportAsSellersCSV !== 'function') missing.push('exportAsSellersCSV (assets/js/app-exports.js)');
     if (typeof exportFifoAuditCSV !== 'function') missing.push('exportFifoAuditCSV (assets/js/app-exports.js)');
         if (typeof export9APdf !== 'function') missing.push('export9APdf (assets/js/app-exports.js)');
+        if (typeof exportTaxSummaryPdf !== 'function') missing.push('exportTaxSummaryPdf (assets/js/app-exports.js)');
         if (typeof exportDividendsCSV !== 'function') missing.push('exportDividendsCSV (assets/js/app-exports.js)');
         if (typeof exportInterestsCSV !== 'function') missing.push('exportInterestsCSV (assets/js/app-exports.js)');
 
