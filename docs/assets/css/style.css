@@ -30,14 +30,19 @@
         }
 
         .header h1 {
-            font-size: 2.3em;
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
+            font-size: clamp(2rem, 2.8vw, 2.7rem);
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+            font-weight: 800;
+            text-shadow: 0 3px 12px rgba(19, 30, 69, 0.28);
         }
 
         .header p {
-            font-size: 1em;
-            opacity: 0.92;
+            font-size: 1.02em;
+            opacity: 0.95;
+            line-height: 1.55;
+            max-width: 860px;
+            margin: 0 auto;
         }
 
         .content {
@@ -778,7 +783,11 @@
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 1.8em;
+                font-size: 1.7em;
+            }
+
+            .header p {
+                font-size: 0.96em;
             }
 
             .content {
