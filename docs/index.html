@@ -109,6 +109,10 @@
                     <span>🧪 Demo käytössä: tulokset perustuvat esimerkkiaineistoon.</span>
                     <button type="button" class="demo-exit-button" id="exitDemoModeButton" onclick="exitDemoMode()">Poistu demotilasta</button>
                 </div>
+                <div class="export-buttons export-buttons-global">
+                    <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
+                    <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
+                </div>
 
                 <div class="summary-box">
                     <h3 style="margin-bottom: 12px;">Luovutusvoitot/-tappiot (9A)</h3>
@@ -161,6 +165,35 @@
                             <div class="summary-item-value negative" id="lossGainTotal">0.00 €</div>
                         </div>
                     </div>
+
+                    <div class="summary-actions">
+                        <button class="toggle-sales" id="toggleSalesButton" onclick="toggleSales()">📋 Näytä myynnit</button>
+                        <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
+                    </div>
+
+                    <div class="sales-section" id="salesSection">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">Myynnit (FIFO + hankintameno-olettama)</h3>
+                        <div class="help-text sales-empty" id="salesEmptyState">Ei myyntejä valitulle verovuodelle.</div>
+                        <div class="sales-table-wrap">
+                            <table class="sales-table" id="salesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Luovutettu arvopaperi/arvo-osuus</th>
+                                        <th>Määrä</th>
+                                        <th>Hankinta-aika</th>
+                                        <th>Luovutusaika</th>
+                                        <th>Luovutushinta</th>
+                                        <th>Hankintahinta</th>
+                                        <th>Hankintakulut</th>
+                                        <th>Myyntikulut</th>
+                                        <th>Hankintameno-olettama</th>
+                                        <th>Voitto tai tappio</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="summary-box">
@@ -175,6 +208,28 @@
                             <div class="summary-item-value" id="dividendTaxable">0.00 €</div>
                         </div>
                     </div>
+
+                    <div class="summary-actions">
+                        <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">💶 Näytä osingot</button>
+                        <button id="exportDividendsCsvButton" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
+                    </div>
+
+                    <div class="sales-section" id="dividendsSection">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">Osingot (brutto)</h3>
+                        <div class="help-text sales-empty" id="dividendsEmptyState">Ei osinkoja valitulle verovuodelle.</div>
+                        <div class="sales-table-wrap">
+                            <table class="sales-table" id="dividendsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Päivä</th>
+                                        <th>Arvopaperi</th>
+                                        <th>Brutto-osinko</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="summary-box">
@@ -183,6 +238,28 @@
                         <div class="summary-item">
                             <div class="summary-item-label">Korkotulot</div>
                             <div class="summary-item-value" id="interestIncome">0.00 €</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-actions">
+                        <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">🏦 Näytä korot</button>
+                        <button id="exportInterestsCsvButton" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
+                    </div>
+
+                    <div class="sales-section" id="interestsSection">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">Korkotulot</h3>
+                        <div class="help-text sales-empty" id="interestsEmptyState">Ei korkotuloja valitulle verovuodelle.</div>
+                        <div class="sales-table-wrap">
+                            <table class="sales-table" id="interestsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Päivä</th>
+                                        <th>Tapahtuma</th>
+                                        <th>Määrä</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -237,98 +314,36 @@
                             <div class="summary-item-value" id="allocatedSellFees">0.00 €</div>
                         </div>
                     </div>
-                </div>
 
-                <button class="toggle-sales" id="toggleSalesButton" onclick="toggleSales()">📋 Näytä myynnit</button>
-
-                <div class="sales-section" id="salesSection">
-                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Myynnit (FIFO + hankintameno-olettama)</h3>
-                    <div class="help-text sales-empty" id="salesEmptyState">Ei myyntejä valitulle verovuodelle.</div>
-                    <div class="sales-table-wrap">
-                        <table class="sales-table" id="salesTable">
-                            <thead>
-                                <tr>
-                                    <th>Luovutettu arvopaperi/arvo-osuus</th>
-                                    <th>Määrä</th>
-                                    <th>Hankinta-aika</th>
-                                    <th>Luovutusaika</th>
-                                    <th>Luovutushinta</th>
-                                    <th>Hankintahinta</th>
-                                    <th>Hankintakulut</th>
-                                    <th>Myyntikulut</th>
-                                    <th>Hankintameno-olettama</th>
-                                    <th>Voitto tai tappio</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div class="summary-actions">
+                        <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
+                        <button id="exportFifoAuditCsvButton" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
                     </div>
-                </div>
-
-                <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
-
-                <div class="sales-section" id="fifoAuditSection">
-                    <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
-                    <div class="help-text sales-empty" id="fifoAuditEmptyState">Ei FIFO-audit rivejä valitulle verovuodelle.</div>
-                    <div class="sales-table-wrap">
-                        <table class="sales-table" id="fifoAuditTable">
-                            <thead>
-                                <tr>
-                                    <th>Myynti pvm</th>
-                                    <th>Arvopaperi</th>
-                                    <th>Myyty määrä</th>
-                                    <th>Hankinta pvm</th>
-                                    <th>Lotista käytetty määrä</th>
-                                    <th>Lotin alkuperäinen määrä</th>
-                                    <th>Lotista jäljellä myynnin jälkeen</th>
-                                    <th>Hankintahinta osuus</th>
-                                    <th>Hankintakulut osuus</th>
-                                    <th>Myyntikulut osuus</th>
-                                    <th>Hankintameno-olettama osuus</th>
-                                    <th>Menetelmä</th>
-                                    <th>Voitto/tappio osuus</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">💶 Näytä osingot</button>
-
-                <div class="sales-section" id="dividendsSection">
-                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Osingot (brutto)</h3>
-                    <div class="help-text sales-empty" id="dividendsEmptyState">Ei osinkoja valitulle verovuodelle.</div>
-                    <div class="sales-table-wrap">
-                        <table class="sales-table" id="dividendsTable">
-                            <thead>
-                                <tr>
-                                    <th>Päivä</th>
-                                    <th>Arvopaperi</th>
-                                    <th>Brutto-osinko</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">🏦 Näytä korot</button>
-
-                <div class="sales-section" id="interestsSection">
-                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Korkotulot</h3>
-                    <div class="help-text sales-empty" id="interestsEmptyState">Ei korkotuloja valitulle verovuodelle.</div>
-                    <div class="sales-table-wrap">
-                        <table class="sales-table" id="interestsTable">
-                            <thead>
-                                <tr>
-                                    <th>Päivä</th>
-                                    <th>Tapahtuma</th>
-                                    <th>Määrä</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <div class="sales-section" id="fifoAuditSection">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
+                        <div class="help-text sales-empty" id="fifoAuditEmptyState">Ei FIFO-audit rivejä valitulle verovuodelle.</div>
+                        <div class="sales-table-wrap">
+                            <table class="sales-table" id="fifoAuditTable">
+                                <thead>
+                                    <tr>
+                                        <th>Myynti pvm</th>
+                                        <th>Arvopaperi</th>
+                                        <th>Myyty määrä</th>
+                                        <th>Hankinta pvm</th>
+                                        <th>Lotista käytetty määrä</th>
+                                        <th>Lotin alkuperäinen määrä</th>
+                                        <th>Lotista jäljellä myynnin jälkeen</th>
+                                        <th>Hankintahinta osuus</th>
+                                        <th>Hankintakulut osuus</th>
+                                        <th>Myyntikulut osuus</th>
+                                        <th>Hankintameno-olettama osuus</th>
+                                        <th>Menetelmä</th>
+                                        <th>Voitto/tappio osuus</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -341,15 +356,6 @@
                         <li class="info-line"><span class="info-label">Hoito- ja säilytysmenot:</span> <span class="info-value">Ilmoita kokonaismäärä; 50 € omavastuu huomioidaan verotuksessa.</span></li>
                         <li class="info-line"><span class="info-label">HUOM:</span> <span class="info-value">Tämä ei ole veroneuvontaa. Tarkista lopullinen ilmoittaminen OmaVerosta.</span></li>
                     </ul>
-                </div>
-
-                <div class="export-buttons">
-                    <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
-                    <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
-                    <button id="exportFifoAuditCsvButton" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
-                    <button id="exportDividendsCsvButton" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
-                    <button id="exportInterestsCsvButton" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
-                    <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
                 </div>
 
                 <div class="support-creator">

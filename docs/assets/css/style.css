@@ -475,6 +475,22 @@
             min-width: 170px;
         }
 
+        .export-buttons-global {
+            margin-top: 6px;
+            margin-bottom: 18px;
+        }
+
+        .summary-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .summary-actions .toggle-sales {
+            margin-top: 0;
+        }
+
         .section-title {
             font-size: 1.18rem;
             font-weight: 700;
