@@ -9,22 +9,22 @@ const {
 } = exportsCore;
 
 function toggleSales() {
-    toggleSection('salesSection', 'toggleSalesButton', 'myynnit');
+    toggleSection('salesSection', 'toggleSalesButton', 'myynnit', '📋');
 }
 
 function toggleFifoAudit() {
-    toggleSection('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail');
+    toggleSection('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail', '🧾');
 }
 
 function toggleDividends() {
-    toggleSection('dividendsSection', 'toggleDividendsButton', 'osingot');
+    toggleSection('dividendsSection', 'toggleDividendsButton', 'osingot', '💶');
 }
 
 function toggleInterests() {
-    toggleSection('interestsSection', 'toggleInterestsButton', 'korot');
+    toggleSection('interestsSection', 'toggleInterestsButton', 'korot', '🏦');
 }
 
-function updateToggleButtonLabel(sectionId, buttonId, nounLabel) {
+function updateToggleButtonLabel(sectionId, buttonId, nounLabel, icon) {
     const section = document.getElementById(sectionId);
     const button = document.getElementById(buttonId);
     if (!section || !button) return;
@@ -35,23 +35,23 @@ function updateToggleButtonLabel(sectionId, buttonId, nounLabel) {
             : (typeof section.className === 'string' && section.className.split(/\s+/).includes('show'))
     );
     button.textContent = isVisible
-        ? `📋 Piilota ${nounLabel}`
-        : `📋 Näytä ${nounLabel}`;
+        ? `${icon} Piilota ${nounLabel}`
+        : `${icon} Näytä ${nounLabel}`;
 }
 
 function refreshToggleButtonsState() {
-    updateToggleButtonLabel('salesSection', 'toggleSalesButton', 'myynnit');
-    updateToggleButtonLabel('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail');
-    updateToggleButtonLabel('dividendsSection', 'toggleDividendsButton', 'osingot');
-    updateToggleButtonLabel('interestsSection', 'toggleInterestsButton', 'korot');
+    updateToggleButtonLabel('salesSection', 'toggleSalesButton', 'myynnit', '📋');
+    updateToggleButtonLabel('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail', '🧾');
+    updateToggleButtonLabel('dividendsSection', 'toggleDividendsButton', 'osingot', '💶');
+    updateToggleButtonLabel('interestsSection', 'toggleInterestsButton', 'korot', '🏦');
 }
 
-function toggleSection(sectionId, buttonId, nounLabel) {
+function toggleSection(sectionId, buttonId, nounLabel, icon) {
     const section = document.getElementById(sectionId);
     if (!section || !section.classList) return;
 
     section.classList.toggle('show');
-    updateToggleButtonLabel(sectionId, buttonId, nounLabel);
+    updateToggleButtonLabel(sectionId, buttonId, nounLabel, icon);
 }
 
 function exportAsJSON() {

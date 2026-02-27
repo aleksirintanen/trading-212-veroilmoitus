@@ -125,29 +125,34 @@
 
                 <div class="summary-box">
                     <h3 style="margin-bottom: 12px;">OmaVero-koonti myynneistä</h3>
+                    <h4 style="margin-bottom: 10px; color: #2a3d66;">Voitolliset myynnit</h4>
                     <div class="summary-grid">
                         <div class="summary-item">
-                            <div class="summary-item-label">Voitolliset: myynnit yhteensä</div>
+                            <div class="summary-item-label">Myynnit yhteensä</div>
                             <div class="summary-item-value" id="profitProceedsTotal">0.00 €</div>
                         </div>
                         <div class="summary-item">
-                            <div class="summary-item-label">Voitolliset: hankintameno yhteensä</div>
+                            <div class="summary-item-label">Hankintameno yhteensä</div>
                             <div class="summary-item-value" id="profitCostTotal">0.00 €</div>
                         </div>
                         <div class="summary-item">
-                            <div class="summary-item-label">Voitolliset: voitto yhteensä</div>
+                            <div class="summary-item-label">Voitto yhteensä</div>
                             <div class="summary-item-value positive" id="profitGainTotal">0.00 €</div>
                         </div>
+                    </div>
+
+                    <h4 style="margin: 16px 0 10px; color: #2a3d66;">Tappiolliset myynnit</h4>
+                    <div class="summary-grid">
                         <div class="summary-item">
-                            <div class="summary-item-label">Tappiolliset: myynnit yhteensä</div>
+                            <div class="summary-item-label">Myynnit yhteensä</div>
                             <div class="summary-item-value" id="lossProceedsTotal">0.00 €</div>
                         </div>
                         <div class="summary-item">
-                            <div class="summary-item-label">Tappiolliset: hankintameno yhteensä</div>
+                            <div class="summary-item-label">Hankintameno yhteensä</div>
                             <div class="summary-item-value" id="lossCostTotal">0.00 €</div>
                         </div>
                         <div class="summary-item">
-                            <div class="summary-item-label">Tappiolliset: tappio yhteensä</div>
+                            <div class="summary-item-label">Tappio yhteensä</div>
                             <div class="summary-item-value negative" id="lossGainTotal">0.00 €</div>
                         </div>
                     </div>
@@ -255,7 +260,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">📋 Näytä FIFO-audit trail</button>
+                <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
 
                 <div class="sales-section" id="fifoAuditSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
@@ -284,7 +289,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">📋 Näytä osingot</button>
+                <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">💶 Näytä osingot</button>
 
                 <div class="sales-section" id="dividendsSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Osingot (brutto)</h3>
@@ -303,7 +308,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">📋 Näytä korot</button>
+                <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">🏦 Näytä korot</button>
 
                 <div class="sales-section" id="interestsSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Korkotulot</h3>
