@@ -8,6 +8,44 @@ const {
     expandSaleRowsForReporting
 } = exportsCore;
 
+const SECTION_STATE_STORAGE_KEY = 't212_section_visibility_state_v1';
+const SECTION_IDS = ['salesSection', 'fifoAuditSection', 'dividendsSection', 'interestsSection'];
+
+function loadSectionVisibilityState() {
+    try {
+        if (typeof localStorage === 'undefined') return {};
+        const raw = localStorage.getItem(SECTION_STATE_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (_) {
+        return {};
+    }
+}
+
+function saveSectionVisibilityState(sectionId, isVisible) {
+    if (!SECTION_IDS.includes(sectionId)) return;
+
+    try {
+        if (typeof localStorage === 'undefined') return;
+        const current = loadSectionVisibilityState();
+        current[sectionId] = !!isVisible;
+        localStorage.setItem(SECTION_STATE_STORAGE_KEY, JSON.stringify(current));
+    } catch (_) {
+    }
+}
+
+function restoreSectionVisibilityState() {
+    const stored = loadSectionVisibilityState();
+
+    for (const sectionId of SECTION_IDS) {
+        const section = document.getElementById(sectionId);
+        if (!section || !section.classList) continue;
+
+        section.classList.toggle('show', !!stored[sectionId]);
+    }
+}
+
 function triggerDownload(content, mimeType, filename) {
     const preferredType = /json|csv|text|pdf/i.test(String(mimeType || ''))
         ? 'application/octet-stream'
@@ -69,6 +107,7 @@ function toggleSection(sectionId, buttonId, nounLabel, icon) {
     if (!section || !section.classList) return;
 
     section.classList.toggle('show');
+    saveSectionVisibilityState(sectionId, section.classList.contains('show'));
     updateToggleButtonLabel(sectionId, buttonId, nounLabel, icon);
 }
 
@@ -218,6 +257,7 @@ window.toggleFifoAudit = toggleFifoAudit;
 window.toggleDividends = toggleDividends;
 window.toggleInterests = toggleInterests;
 window.refreshToggleButtonsState = refreshToggleButtonsState;
+window.restoreSectionVisibilityState = restoreSectionVisibilityState;
 window.exportAsJSON = exportAsJSON;
 window.exportAsSellersCSV = exportAsSellersCSV;
 window.exportFifoAuditCSV = exportFifoAuditCSV;
@@ -227,6 +267,7 @@ window.export9APdf = export9APdf;
 window.exportTaxSummaryPdf = exportTaxSummaryPdf;
 
 if (typeof document !== 'undefined') {
+    restoreSectionVisibilityState();
     refreshToggleButtonsState();
 }
 })();

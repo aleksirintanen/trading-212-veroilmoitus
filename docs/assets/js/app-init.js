@@ -36,6 +36,41 @@ function validateRequiredModules() {
     return false;
 }
 
+const TAX_YEAR_STORAGE_KEY = 't212_tax_year_v1';
+const FORMAT_STORAGE_KEY = 't212_format_v1';
+
+function setLocalStorageValue(key, value) {
+    try {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.setItem(key, String(value));
+    } catch (_) {
+    }
+}
+
+function getLocalStorageValue(key) {
+    try {
+        if (typeof localStorage === 'undefined') return null;
+        return localStorage.getItem(key);
+    } catch (_) {
+        return null;
+    }
+}
+
+function restoreSavedSelections() {
+    const taxYearInput = document.getElementById('taxYear');
+    const formatSelect = document.getElementById('formatSelect');
+
+    const savedYear = getLocalStorageValue(TAX_YEAR_STORAGE_KEY);
+    if (taxYearInput && savedYear && /^\d{4}$/.test(savedYear)) {
+        taxYearInput.value = savedYear;
+    }
+
+    const savedFormat = getLocalStorageValue(FORMAT_STORAGE_KEY);
+    if (formatSelect && savedFormat && Array.from(formatSelect.options).some(opt => opt.value === savedFormat)) {
+        formatSelect.value = savedFormat;
+    }
+}
+
 const EMBEDDED_DEMO_TRADING212_CSV = `Action,Time,Ticker,No. of shares,Gross Total,Currency (Gross Total),Currency conversion fee
 Market buy,2024-01-08 10:12:00,AAPL,3,498.00,EUR,0.15
 Market buy,2024-01-10 11:25:00,MSFT,2,710.00,EUR,0.12
@@ -218,6 +253,8 @@ function initializeTrading212App() {
     const resetCsvPreview = previewUi.resetCsvPreview || (() => {});
     const previewSelectedFile = previewUi.previewSelectedFile || (() => {});
 
+    restoreSavedSelections();
+
     if (typeof updateFormatHelp === 'function') {
         updateFormatHelp();
     }
@@ -227,8 +264,21 @@ function initializeTrading212App() {
     setSalesEmptyState(false);
     setDemoModeIndicator(false);
 
+    if (typeof restoreSectionVisibilityState === 'function') {
+        restoreSectionVisibilityState();
+    }
+
     if (typeof refreshToggleButtonsState === 'function') {
         refreshToggleButtonsState();
+    }
+
+    const taxYearInput = document.getElementById('taxYear');
+    if (taxYearInput && typeof taxYearInput.addEventListener === 'function') {
+        taxYearInput.addEventListener('change', () => {
+            if (taxYearInput.value) {
+                setLocalStorageValue(TAX_YEAR_STORAGE_KEY, taxYearInput.value);
+            }
+        });
     }
 
     const csvFileInput = document.getElementById('csvFile');
@@ -242,6 +292,7 @@ function initializeTrading212App() {
     const formatSelect = document.getElementById('formatSelect');
     if (formatSelect && typeof formatSelect.addEventListener === 'function') {
         formatSelect.addEventListener('change', () => {
+            setLocalStorageValue(FORMAT_STORAGE_KEY, formatSelect.value);
             const fileInput = document.getElementById('csvFile');
             if (fileInput?.files?.length) {
                 previewSelectedFile();
