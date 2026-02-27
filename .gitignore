@@ -26,6 +26,8 @@ node_modules/
 coverage/
 .nyc_output/
 .parcel-cache/
+playwright-report/
+test-results/
 
 # Python caches (if scripts are used)
 __pycache__/

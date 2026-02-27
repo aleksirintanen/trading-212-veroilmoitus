@@ -19,5 +19,17 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Xvfb helpers
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth
+
       - name: Run test suite
         run: node tests/run-tests.mjs
+
+      - name: Run Playwright E2E (headed)
+        run: xvfb-run -a npm run test:e2e:headed

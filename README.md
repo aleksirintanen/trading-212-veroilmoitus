@@ -71,6 +71,26 @@ Paikallinen ajo (vaatii Node.js):
 
 `node tests/run-tests.mjs`
 
+## Playwright E2E-testit
+
+Projektissa on myös Playwright-end-to-end testit kansiossa `tests/e2e/`.
+
+Asennus:
+
+`npm install`
+
+Asenna Chromium Playwrightille:
+
+`npx playwright install chromium`
+
+Aja E2E-testit:
+
+`npm run test:e2e`
+
+Tarvittaessa ajettuna näkyvällä selaimella:
+
+`npm run test:e2e:headed`
+
 ## Dev Container (Docker)
 
 Projektissa on valmis devcontainer-konfiguraatio:
