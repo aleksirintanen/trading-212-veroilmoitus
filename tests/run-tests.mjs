@@ -23,6 +23,10 @@ function assertThrows(fn, message) {
 const corePath = path.resolve(process.cwd(), 'docs/assets/js/core/core-engine.js');
 const coreSource = fs.readFileSync(corePath, 'utf8');
 
+function readSource(relativePath) {
+  return fs.readFileSync(path.resolve(process.cwd(), relativePath), 'utf8');
+}
+
 const elements = new Map();
 const getEl = (id) => {
   if (!elements.has(id)) {
@@ -31,8 +35,12 @@ const getEl = (id) => {
       value: id === 'formatSelect' ? 'trading212' : '',
       innerHTML: '',
       textContent: '',
+      dataset: {},
       checked: false,
       files: [],
+      style: {},
+      disabled: false,
+      addEventListener() {},
       classList: { add() {}, remove() {}, toggle() {} }
     });
   }
@@ -52,10 +60,35 @@ const sandbox = {
   window: {},
   document: {
     getElementById: getEl,
+    createElement() {
+      return {
+        textContent: '',
+        className: '',
+        classList: { add() {}, remove() {}, toggle() {} },
+        appendChild() {},
+        replaceChildren() {},
+        style: {}
+      };
+    },
+    createTextNode(text) {
+      return { textContent: text };
+    },
+    createDocumentFragment() {
+      return { appendChild() {} };
+    },
     querySelector() {
-      return { innerHTML: '', appendChild() {} };
+      return {
+        innerHTML: '',
+        appendChild() {},
+        classList: { add() {}, remove() {}, toggle() {} }
+      };
     },
     addEventListener() {}
+  },
+  jspdf: {
+    jsPDF: function() {
+      return {};
+    }
   }
 };
 
@@ -116,5 +149,30 @@ assert(rulesFallback.capitalIncomeBracketEur === 30000, 'tax rule fallback shoul
 const expectedTax = 30000 * 0.30 + 10000 * 0.34;
 const estimatedTax = sandbox.estimateCapitalTax(40000, rules2025);
 assert(Math.abs(estimatedTax - expectedTax) < 1e-9, 'estimateCapitalTax mismatch with explicit rules');
+
+const smokeScripts = [
+  'docs/assets/js/core/core-engine.js',
+  'docs/assets/js/ui/preview-ui.js',
+  'docs/assets/js/ui/pdf-export.js',
+  'docs/assets/js/app-tax-calculation.js',
+  'docs/assets/js/app-exports.js',
+  'docs/assets/js/app-init.js'
+];
+
+for (const scriptPath of smokeScripts) {
+  vm.runInContext(readSource(scriptPath), sandbox, { filename: path.basename(scriptPath) });
+}
+
+assert(typeof sandbox.AppCore === 'object', 'Smoke test: AppCore missing');
+assert(typeof sandbox.AppPreviewUi === 'object', 'Smoke test: AppPreviewUi missing');
+assert(typeof sandbox.AppPdfExport === 'object', 'Smoke test: AppPdfExport missing');
+assert(typeof sandbox.calculateTaxes === 'function', 'Smoke test: calculateTaxes missing');
+assert(typeof sandbox.exportAsJSON === 'function', 'Smoke test: exportAsJSON missing');
+assert(typeof sandbox.toggleSales === 'function', 'Smoke test: toggleSales missing');
+assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividends missing');
+assert(typeof sandbox.toggleInterests === 'function', 'Smoke test: toggleInterests missing');
+assert(typeof sandbox.initializeTrading212App === 'function', 'Smoke test: initializeTrading212App missing');
+
+sandbox.initializeTrading212App();
 
 console.log('✅ All tests passed');
