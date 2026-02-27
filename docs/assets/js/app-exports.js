@@ -69,7 +69,7 @@ function toggleSales() {
 }
 
 function toggleFifoAudit() {
-    toggleSection('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail', '🧾');
+    toggleSection('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-auditointi', '🧾');
 }
 
 function toggleDividends() {
@@ -97,7 +97,7 @@ function updateToggleButtonLabel(sectionId, buttonId, nounLabel, icon) {
 
 function refreshToggleButtonsState() {
     updateToggleButtonLabel('salesSection', 'toggleSalesButton', 'myynnit', '📋');
-    updateToggleButtonLabel('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail', '🧾');
+    updateToggleButtonLabel('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-auditointi', '🧾');
     updateToggleButtonLabel('dividendsSection', 'toggleDividendsButton', 'osingot', '💶');
     updateToggleButtonLabel('interestsSection', 'toggleInterestsButton', 'korot', '🏦');
 }
@@ -201,7 +201,7 @@ function exportFifoAuditCSV() {
 
     const csv = buildFifoAuditCsvContent();
     if (!csv) {
-        alert('Ei FIFO-audit rivejä exporttia varten');
+        alert('Ei FIFO-auditoinnin rivejä vientiä varten');
         return;
     }
 

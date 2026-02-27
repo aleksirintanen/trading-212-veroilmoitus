@@ -62,7 +62,7 @@
             y += 12;
             doc.text(`Henkilö-/Y-tunnus: ${personalId}`, margin, y);
             y += 12;
-            doc.text(`Period: ${periodText}`, margin, y);
+            doc.text(`Ajanjakso: ${periodText}`, margin, y);
             y += 12;
             doc.text('Koonti OmaVeroa varten: voitolliset ja tappiolliset myynnit erikseen.', margin, y);
             y += 14;
