@@ -31,3 +31,7 @@ If tests fail, prioritize fixing the area you just changed.
 - Keep UI language clear and consistent.
 - Use consistent terminology across the UI (for example CSV/PDF/ZIP labels).
 - Avoid contradictory or ambiguous warning/instruction text.
+
+## UI Change Verification
+
+- After every UI change (HTML/CSS/visual JS behavior), verify the result with Playwright and capture at least one screenshot of the affected view before finalizing.
