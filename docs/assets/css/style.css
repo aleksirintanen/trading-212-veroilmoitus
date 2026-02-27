@@ -490,6 +490,23 @@
             font-size: 0.93rem;
         }
 
+        .demo-mode-badge {
+            display: none;
+            margin-top: -8px;
+            margin-bottom: 14px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #fff4d6;
+            border: 1px solid #f3d283;
+            color: #7a5c00;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        .demo-mode-badge.show {
+            display: block;
+        }
+
         .csv-sample {
             background: #f8f9fa;
             padding: 15px;

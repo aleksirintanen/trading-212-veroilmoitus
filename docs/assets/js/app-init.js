@@ -103,6 +103,14 @@ async function loadDemoCsvText() {
     return EMBEDDED_DEMO_TRADING212_CSV;
 }
 
+function setDemoModeIndicator(isDemoMode) {
+    window.isDemoMode = !!isDemoMode;
+    const demoBadge = document.getElementById('demoModeBadge');
+    if (demoBadge?.classList) {
+        demoBadge.classList.toggle('show', !!isDemoMode);
+    }
+}
+
 async function loadDemoData() {
     const errorElement = document.getElementById('errorMessage');
     if (errorElement?.classList) {
@@ -118,6 +126,8 @@ async function loadDemoData() {
     }
 
     try {
+        setDemoModeIndicator(true);
+
         const formatSelect = document.getElementById('formatSelect');
         if (formatSelect) {
             formatSelect.value = 'trading212';
@@ -152,6 +162,7 @@ async function loadDemoData() {
             calculateTaxes();
         }
     } catch (error) {
+        setDemoModeIndicator(false);
         if (errorElement?.classList) {
             errorElement.textContent = `Virhe: ${error.message}`;
             errorElement.classList.add('show');
@@ -182,6 +193,7 @@ function initializeTrading212App() {
     setExportButtonsState(false, false);
     resetCsvPreview();
     setSalesEmptyState(false);
+    setDemoModeIndicator(false);
 
     if (typeof refreshToggleButtonsState === 'function') {
         refreshToggleButtonsState();
@@ -189,7 +201,10 @@ function initializeTrading212App() {
 
     const csvFileInput = document.getElementById('csvFile');
     if (csvFileInput && typeof csvFileInput.addEventListener === 'function') {
-        csvFileInput.addEventListener('change', previewSelectedFile);
+        csvFileInput.addEventListener('change', () => {
+            setDemoModeIndicator(false);
+            previewSelectedFile();
+        });
     }
 
     const formatSelect = document.getElementById('formatSelect');
