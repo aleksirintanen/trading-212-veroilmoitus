@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Trading 212 Veroilmoitus on ilmainen selainpohjainen työkalu Trading 212 -CSV:n verolaskentaan (FIFO ja hankintameno-olettama) sekä 9A-liitteen PDF-vientiin.">
+    <meta name="description" content="Trading 212 Veroilmoitus on ilmainen selainpohjainen työkalu Trading 212 -CSV:n verolaskentaan (FIFO), osinko- ja korkotuottojen huomiointiin sekä 9A-liitteen PDF-vientiin.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://aleksirintanen.github.io/trading-212-veroilmoitus/">
 
@@ -11,12 +11,12 @@
     <meta property="og:locale" content="fi_FI">
     <meta property="og:site_name" content="Trading 212 Veroilmoitus">
     <meta property="og:title" content="Trading 212 Veroilmoitus">
-    <meta property="og:description" content="Laske Trading 212 -tapahtumista verot FIFO-menetelmällä ja hankintameno-olettamalla sekä vie 9A-liite PDF:nä.">
+    <meta property="og:description" content="Laske Trading 212 -tapahtumista verot FIFO-menetelmällä, huomioi osinko- ja korkotuotot sekä vie 9A-liite PDF:nä.">
     <meta property="og:url" content="https://aleksirintanen.github.io/trading-212-veroilmoitus/">
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Trading 212 Veroilmoitus">
-    <meta name="twitter:description" content="Trading 212 -CSV:n verolaskenta (FIFO + hankintameno-olettama) ja 9A-liitteen PDF-vienti.">
+    <meta name="twitter:description" content="Trading 212 -CSV:n verolaskenta FIFO-menetelmällä, osinko- ja korkotuotot sekä 9A-liitteen PDF-vienti.">
 
     <title>Trading 212 Veroilmoitus</title>
     <link rel="stylesheet" href="assets/css/style.css?v=20260227-4">
@@ -39,14 +39,14 @@
 
             <div class="input-section">
                 <h2 class="section-title">Lähtötiedot</h2>
-                <div class="section-subtitle">Täytä tiedot alla olevan 4-vaiheisen etenemisen mukaan.</div>
+                <div class="section-subtitle">Täytä tiedot alla olevan 4-vaiheisen ohjeen mukaan.</div>
 
                 <div class="steps-guide">
                     <ol>
-                        <li class="info-line"><span class="info-label">Valitse verovuosi:</span> <span class="info-value">Syötä laskentavuosi ennen CSV:n käsittelyä.</span></li>
-                        <li class="info-line"><span class="info-label">Hae Trading 212 CSV-tapahtumahistoria:</span> <span class="info-value">Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a></span></li>
-                        <li class="info-line"><span class="info-label">Lisää CSV laskuriin:</span> <span class="info-value">Valitse oikea CSV-muoto ja lataa tiedosto.</span></li>
-                        <li class="info-line"><span class="info-label">Laske verot:</span> <span class="info-value">Täytä halutessa valinnaiset 9A-kentät (nimi ja henkilötunnus).</span></li>
+                        <li class="info-line"><span class="info-label">Valitse verovuosi:</span> <span class="info-value">Syötä verovuosi ennen CSV-tiedoston käsittelyä.</span></li>
+                        <li class="info-line"><span class="info-label">Hae Trading 212 -tapahtumahistoria (CSV):</span> <span class="info-value">Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a></span></li>
+                        <li class="info-line"><span class="info-label">Lataa CSV laskuriin:</span> <span class="info-value">Valitse oikea CSV-muoto ja tiedosto.</span></li>
+                        <li class="info-line"><span class="info-label">Laske verot:</span> <span class="info-value">Täytä halutessasi valinnaiset 9A-kentät (nimi ja henkilötunnus).</span></li>
                     </ol>
                 </div>
 
@@ -59,10 +59,10 @@
                     </div>
                 </div>
 
-                <div class="step-block-title">2. Hae Trading 212 CSV-tapahtumahistoria</div>
-                <div class="help-text">Tarvittaessa käytä yllä olevaa Trading 212 -ohjelinkkiä CSV-viennin tekemiseen.</div>
+                <div class="step-block-title">2. Hae Trading 212 -tapahtumahistoria (CSV)</div>
+                <div class="help-text">Voit käyttää yllä olevaa Trading 212 -ohjelinkkiä CSV-viennin tekemiseen.</div>
 
-                <div class="step-block-title">3. Lisää CSV laskuriin</div>
+                <div class="step-block-title">3. Lataa CSV laskuriin</div>
 
                 <div class="form-group">
                     <label for="formatSelect">CSV-muoto</label>
@@ -70,7 +70,7 @@
                         <option value="trading212">Trading 212 (History)</option>
                         <option value="manual">Manuaalinen muoto</option>
                     </select>
-                    <div class="help-text">Trading 212: Lataa suoraan "History" CSV:n. Manuaalinen: Oma muoto.</div>
+                    <div class="help-text">Trading 212: lataa suoraan "History"-CSV. Manuaalinen: käytä omaa CSV-muotoa.</div>
                 </div>
 
                 <div class="form-group">
@@ -92,7 +92,7 @@
                 </div>
 
                 <div class="step-block-title">4. Laske verot (valinnaiset 9A-kentät alla)</div>
-                <div class="optional-note">Valinnainen 9A-liitteelle: nimi ja henkilötunnus.</div>
+                <div class="optional-note">Valinnainen 9A-liitteelle: nimi ja henkilö-/Y-tunnus.</div>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -112,7 +112,7 @@
 
             <div class="results" id="results">
                 <h2 class="section-title">Verovuoden yhteenveto</h2>
-                <div class="section-subtitle">Alla yhteenveto sekä OmaVeroa varten tarvittavat koontitiedot.</div>
+                <div class="section-subtitle">Alla verovuoden yhteenveto ja OmaVeroa varten tarvittavat koontitiedot.</div>
                 <div class="demo-mode-badge" id="demoModeBadge">
                     <span>🧪 Demo käytössä: tulokset perustuvat esimerkkiaineistoon.</span>
                     <button type="button" class="demo-exit-button" id="exitDemoModeButton" onclick="exitDemoMode()">Poistu demotilasta</button>
