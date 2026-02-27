@@ -531,6 +531,16 @@
             justify-content: flex-end;
         }
 
+        .overlay-option {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #4e6088;
+            font-size: 0.9rem;
+        }
+
         .export-buttons {
             display: flex;
             gap: 10px;

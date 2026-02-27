@@ -53,6 +53,11 @@ const setSalesEmptyState = previewUiCalc.setSalesEmptyState || (() => {});
 function showExportBehaviorReminderOnce() {
     const storageKey = 't212_export_behavior_notice_shown';
 
+    if (window.__skipExportBehaviorNoticeOnce) {
+        window.__skipExportBehaviorNoticeOnce = false;
+        return true;
+    }
+
     let wasShown = !!window.__exportBehaviorNoticeShown;
     try {
         if (!wasShown && typeof sessionStorage !== 'undefined') {
@@ -65,6 +70,7 @@ function showExportBehaviorReminderOnce() {
 
     const overlay = document.getElementById('exportReminderOverlay');
     const continueButton = document.getElementById('exportReminderContinueBtn');
+    const dontShowAgainInput = document.getElementById('exportReminderDontShowAgain');
     if (!overlay || !continueButton || !overlay.classList) {
         window.__exportBehaviorNoticeShown = true;
         try {
@@ -78,19 +84,26 @@ function showExportBehaviorReminderOnce() {
 
     overlay.classList.add('show');
     overlay.setAttribute('aria-hidden', 'false');
+    if (dontShowAgainInput) {
+        dontShowAgainInput.checked = false;
+    }
 
     continueButton.onclick = () => {
         overlay.classList.remove('show');
         overlay.setAttribute('aria-hidden', 'true');
 
-        window.__exportBehaviorNoticeShown = true;
-        try {
-            if (typeof sessionStorage !== 'undefined') {
-                sessionStorage.setItem(storageKey, '1');
+        const suppressForSession = !!dontShowAgainInput?.checked;
+        if (suppressForSession) {
+            window.__exportBehaviorNoticeShown = true;
+            try {
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem(storageKey, '1');
+                }
+            } catch (_) {
             }
-        } catch (_) {
         }
 
+        window.__skipExportBehaviorNoticeOnce = true;
         calculateTaxes();
     };
 
