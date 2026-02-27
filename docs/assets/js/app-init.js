@@ -103,6 +103,37 @@ async function loadDemoCsvText() {
     return EMBEDDED_DEMO_TRADING212_CSV;
 }
 
+function exitDemoMode() {
+    setDemoModeIndicator(false);
+
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement?.classList) {
+        errorElement.classList.remove('show');
+        errorElement.textContent = '';
+    }
+
+    const fileInput = document.getElementById('csvFile');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    const previewUi = window.AppPreviewUi || {};
+    if (typeof previewUi.previewSelectedFile === 'function') {
+        previewUi.previewSelectedFile();
+    } else {
+        if (typeof previewUi.resetCsvPreview === 'function') {
+            previewUi.resetCsvPreview();
+        }
+        if (typeof previewUi.setExportButtonsState === 'function') {
+            previewUi.setExportButtonsState(false, false);
+        }
+        if (typeof previewUi.hideResults === 'function') {
+            previewUi.hideResults();
+        }
+        window.lastResults = null;
+    }
+}
+
 function setDemoModeIndicator(isDemoMode) {
     window.isDemoMode = !!isDemoMode;
     const demoBadge = document.getElementById('demoModeBadge');
@@ -227,6 +258,7 @@ function initializeTrading212App() {
 if (typeof window !== 'undefined') {
     window.initializeTrading212App = initializeTrading212App;
     window.loadDemoData = loadDemoData;
+    window.exitDemoMode = exitDemoMode;
 }
 
 if (typeof document !== 'undefined') {

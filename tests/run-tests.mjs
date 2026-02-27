@@ -195,6 +195,7 @@ assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividen
 assert(typeof sandbox.toggleInterests === 'function', 'Smoke test: toggleInterests missing');
 assert(typeof sandbox.initializeTrading212App === 'function', 'Smoke test: initializeTrading212App missing');
 assert(typeof sandbox.loadDemoData === 'function', 'Smoke test: loadDemoData missing');
+assert(typeof sandbox.exitDemoMode === 'function', 'Smoke test: exitDemoMode missing');
 
 sandbox.initializeTrading212App();
 

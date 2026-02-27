@@ -492,6 +492,9 @@
 
         .demo-mode-badge {
             display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             margin-top: -8px;
             margin-bottom: 14px;
             padding: 8px 10px;
@@ -504,7 +507,35 @@
         }
 
         .demo-mode-badge.show {
-            display: block;
+            display: flex;
+        }
+
+        .demo-exit-button {
+            background: #f6e2a9;
+            color: #6a5100;
+            border: 1px solid #e4c56b;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: none;
+        }
+
+        .demo-exit-button:hover {
+            transform: none;
+            filter: brightness(0.98);
+            box-shadow: none;
+        }
+
+        .demo-exit-button:active {
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            .demo-mode-badge.show {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
 
         .csv-sample {
