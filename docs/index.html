@@ -19,7 +19,7 @@
     <meta name="twitter:description" content="Trading 212 -CSV:n verolaskenta (FIFO + hankintameno-olettama) ja 9A-liitteen PDF-vienti.">
 
     <title>Trading 212 Veroilmoitus</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=20260227-1">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260227-2">
 </head>
 <body>
     <div class="container">
@@ -206,6 +206,44 @@
                     </div>
                 </div>
 
+                <button class="toggle-sales" onclick="toggleDividends()">💶 Näytä/piilota osingot</button>
+
+                <div class="sales-section" id="dividendsSection">
+                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Osingot (brutto)</h3>
+                    <div class="help-text sales-empty" id="dividendsEmptyState">Ei osinkoja valitulle verovuodelle.</div>
+                    <div class="sales-table-wrap">
+                        <table class="sales-table" id="dividendsTable">
+                            <thead>
+                                <tr>
+                                    <th>Päivä</th>
+                                    <th>Arvopaperi</th>
+                                    <th>Brutto-osinko</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button class="toggle-sales" onclick="toggleInterests()">🏦 Näytä/piilota korot</button>
+
+                <div class="sales-section" id="interestsSection">
+                    <h3 style="margin-top: 20px; margin-bottom: 15px;">Korkotulot</h3>
+                    <div class="help-text sales-empty" id="interestsEmptyState">Ei korkotuloja valitulle verovuodelle.</div>
+                    <div class="sales-table-wrap">
+                        <table class="sales-table" id="interestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Päivä</th>
+                                    <th>Tapahtuma</th>
+                                    <th>Määrä</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="guidance">
                     <h3>📌 Yleiset ohjeet ilmoittamiseen</h3>
                     <ul>
@@ -236,8 +274,8 @@
     <script src="assets/js/core/core-engine.js"></script>
     <script src="assets/js/ui/preview-ui.js"></script>
     <script src="assets/js/ui/pdf-export.js"></script>
-    <script src="assets/js/app-tax-calculation.js?v=20260227-1"></script>
-    <script src="assets/js/app-exports.js"></script>
+    <script src="assets/js/app-tax-calculation.js?v=20260227-2"></script>
+    <script src="assets/js/app-exports.js?v=20260227-2"></script>
     <script src="assets/js/app-init.js"></script>
 </body>
 </html>

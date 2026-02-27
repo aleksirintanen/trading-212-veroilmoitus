@@ -324,6 +324,11 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .sales-table td.amount-cell {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
         .sales-table tr:hover {
             background: #f7f9ff;
         }

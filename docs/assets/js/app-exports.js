@@ -12,6 +12,14 @@ function toggleSales() {
     document.getElementById('salesSection').classList.toggle('show');
 }
 
+function toggleDividends() {
+    document.getElementById('dividendsSection').classList.toggle('show');
+}
+
+function toggleInterests() {
+    document.getElementById('interestsSection').classList.toggle('show');
+}
+
 function exportAsJSON() {
     if (!window.lastResults) {
         alert('Laske ensin verot');
@@ -71,6 +79,8 @@ function export9APdf() {
 }
 
 window.toggleSales = toggleSales;
+window.toggleDividends = toggleDividends;
+window.toggleInterests = toggleInterests;
 window.exportAsJSON = exportAsJSON;
 window.exportAsSellersCSV = exportAsSellersCSV;
 window.export9APdf = export9APdf;

@@ -94,6 +94,8 @@ function calculateTaxes() {
                 const book = new FifoBook(taxRules);
                 const sales = [];
                 const symbolNames = {};
+                const dividendRows = [];
+                const interestRows = [];
 
                 let dividendsGross = 0;
                 let dividendsTaxable = 0;
@@ -147,12 +149,22 @@ function calculateTaxes() {
                             const gross = format === 'trading212' ? transaction.gross_total_eur : transaction.price_eur;
                             dividendsGross += gross;
                             dividendsTaxable += gross * taxRules.listedDividendTaxableShare;
+                            dividendRows.push({
+                                date: d,
+                                symbol: symbol,
+                                symbolName: symbolNames[symbol] || symbolName || '',
+                                amount: gross
+                            });
                         }
 
                     } else if (type === 'INTEREST') {
                         if (d.getFullYear() === year) {
                             const amount = format === 'trading212' ? transaction.gross_total_eur : transaction.price_eur;
                             interestIncome += amount;
+                            interestRows.push({
+                                date: d,
+                                amount: amount
+                            });
                         }
 
                     } else if ((type === 'CUSTODY_FEE' || type === 'FEE') && format === 'manual') {
@@ -287,6 +299,67 @@ function calculateTaxes() {
                     tbody.appendChild(row);
                 }
 
+                const dividendsBody = document.querySelector('#dividendsTable tbody');
+                if (dividendsBody) {
+                    dividendsBody.innerHTML = '';
+                    const sortedDividends = [...dividendRows].sort((a, b) => a.date - b.date);
+                    const dividendsEmptyState = document.getElementById('dividendsEmptyState');
+                    if (dividendsEmptyState?.classList) {
+                        dividendsEmptyState.classList.toggle('show', sortedDividends.length === 0);
+                    }
+
+                    for (const dividend of sortedDividends) {
+                        const row = document.createElement('tr');
+
+                        const dateCell = document.createElement('td');
+                        dateCell.textContent = dividend.date.toLocaleDateString('fi-FI');
+                        row.appendChild(dateCell);
+
+                        const symbolCell = document.createElement('td');
+                        symbolCell.textContent = formatSaleInstrumentDisplay({
+                            symbol: dividend.symbol,
+                            symbolName: dividend.symbolName
+                        });
+                        row.appendChild(symbolCell);
+
+                        const amountCell = document.createElement('td');
+                        amountCell.classList.add('amount-cell');
+                        amountCell.textContent = formatCurrency(dividend.amount);
+                        row.appendChild(amountCell);
+
+                        dividendsBody.appendChild(row);
+                    }
+                }
+
+                const interestsBody = document.querySelector('#interestsTable tbody');
+                if (interestsBody) {
+                    interestsBody.innerHTML = '';
+                    const sortedInterests = [...interestRows].sort((a, b) => a.date - b.date);
+                    const interestsEmptyState = document.getElementById('interestsEmptyState');
+                    if (interestsEmptyState?.classList) {
+                        interestsEmptyState.classList.toggle('show', sortedInterests.length === 0);
+                    }
+
+                    for (const interest of sortedInterests) {
+                        const row = document.createElement('tr');
+
+                        const dateCell = document.createElement('td');
+                        dateCell.textContent = interest.date.toLocaleDateString('fi-FI');
+                        row.appendChild(dateCell);
+
+                        const typeCell = document.createElement('td');
+                        typeCell.textContent = 'Interest on cash';
+                        row.appendChild(typeCell);
+
+                        const amountCell = document.createElement('td');
+                        amountCell.classList.add('amount-cell');
+                        amountCell.textContent = formatCurrency(interest.amount);
+                        row.appendChild(amountCell);
+
+                        interestsBody.appendChild(row);
+                    }
+                }
+
                 window.lastResults = {
                     year: year,
                     totalGains: totalGains,
@@ -295,6 +368,8 @@ function calculateTaxes() {
                     dividendsGross: dividendsGross,
                     dividendsTaxable: dividendsTaxable,
                     interestIncome: interestIncome,
+                    dividends: dividendRows,
+                    interests: interestRows,
                     custodyFees: custodyFees,
                     custodyDeductible: custodyDeductible,
                     netCapitalIncome: netCapitalIncome,
