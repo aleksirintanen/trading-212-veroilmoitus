@@ -180,6 +180,20 @@
             display: block;
         }
 
+        .csv-preview-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preview-control-btn {
+            padding: 8px 14px;
+            font-size: 0.9em;
+            min-width: 170px;
+        }
+
         .csv-preview-table-wrap {
             margin-top: 10px;
             overflow-x: auto;

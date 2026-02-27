@@ -12,6 +12,10 @@ function toggleSales() {
     document.getElementById('salesSection').classList.toggle('show');
 }
 
+function toggleFifoAudit() {
+    document.getElementById('fifoAuditSection').classList.toggle('show');
+}
+
 function toggleDividends() {
     document.getElementById('dividendsSection').classList.toggle('show');
 }
@@ -69,6 +73,50 @@ function exportAsSellersCSV() {
     URL.revokeObjectURL(url);
 }
 
+function exportFifoAuditCSV() {
+    if (!window.lastResults) {
+        alert('Laske ensin verot');
+        return;
+    }
+
+    const auditRows = Array.isArray(window.lastResults.fifoAuditRows)
+        ? window.lastResults.fifoAuditRows
+        : expandSaleRowsForReporting(window.lastResults.sales || []);
+
+    if (!auditRows.length) {
+        alert('Ei FIFO-audit rivejä exporttia varten');
+        return;
+    }
+
+    let csv = 'Myynti pvm,Arvopaperi,Myyty määrä,Hankinta pvm,Lotista käytetty määrä,Lotin alkuperäinen määrä,Lotista jäljellä myynnin jälkeen,Hankintahinta osuus,Hankintakulut osuus,Myyntikulut osuus,Hankintameno-olettama osuus,Menetelmä,Voitto/tappio osuus\n';
+
+    for (const row of auditRows) {
+        csv += [
+            row.soldDate.toLocaleDateString('fi-FI'),
+            formatSaleInstrumentDisplay(row),
+            formatQuantityCsv(row.qty),
+            row.acquiredDate.toLocaleDateString('fi-FI'),
+            formatQuantityCsv(row.qty),
+            formatQuantityCsv(row.lotOriginalQty),
+            formatQuantityCsv(row.lotQtyAfterSale),
+            formatNumber(row.acquisitionPriceEur).replace(',', '.'),
+            formatNumber(row.acquisitionFeesEur).replace(',', '.'),
+            formatNumber(row.sellFeesEur).replace(',', '.'),
+            formatDeemedCostCsv(row),
+            row.methodUsed,
+            formatNumber(row.gainEur).replace(',', '.')
+        ].join(',') + '\n';
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fifo_audit_${window.lastResults.year}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 function export9APdf() {
     if (!window.AppPdfExport || typeof window.AppPdfExport.export9APdf !== 'function') {
         alert('PDF-vienti ei ole käytettävissä tällä hetkellä.');
@@ -79,9 +127,11 @@ function export9APdf() {
 }
 
 window.toggleSales = toggleSales;
+window.toggleFifoAudit = toggleFifoAudit;
 window.toggleDividends = toggleDividends;
 window.toggleInterests = toggleInterests;
 window.exportAsJSON = exportAsJSON;
 window.exportAsSellersCSV = exportAsSellersCSV;
+window.exportFifoAuditCSV = exportFifoAuditCSV;
 window.export9APdf = export9APdf;
 })();

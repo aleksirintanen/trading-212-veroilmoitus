@@ -20,6 +20,18 @@ function assertThrows(fn, message) {
   }
 }
 
+function assertThrowsMessage(fn, expectedMessagePart, message) {
+  try {
+    fn();
+  } catch (error) {
+    if (String(error?.message || '').includes(expectedMessagePart)) {
+      return;
+    }
+    throw new Error(`${message}. Actual: ${error?.message || '(no message)'}`);
+  }
+  throw new Error(message);
+}
+
 const corePath = path.resolve(process.cwd(), 'docs/assets/js/core/core-engine.js');
 const coreSource = fs.readFileSync(corePath, 'utf8');
 
@@ -127,6 +139,12 @@ const parsedSemicolon = sandbox.parseCSV(
 assert(parsedSemicolon.length === 1, 'Semicolon CSV row count mismatch');
 assert(parsedSemicolon[0].type === 'BUY', 'Semicolon delimiter parsing failed');
 
+assertThrowsMessage(
+  () => sandbox.parseManual([{ date: '2025-02-30', type: 'BUY', symbol: 'AAPL', qty: '1', price_eur: '150', fee_eur: '0' }]),
+  'Rivi 2',
+  'parseManual should include row number in validation error'
+);
+
 const parsedDate = sandbox.parseDate('2025-03-20 14:22:59');
 assert(parsedDate.getFullYear() === 2025, 'parseDate year mismatch');
 assert(parsedDate.getMonth() === 2, 'parseDate month mismatch');
@@ -168,7 +186,9 @@ assert(typeof sandbox.AppPreviewUi === 'object', 'Smoke test: AppPreviewUi missi
 assert(typeof sandbox.AppPdfExport === 'object', 'Smoke test: AppPdfExport missing');
 assert(typeof sandbox.calculateTaxes === 'function', 'Smoke test: calculateTaxes missing');
 assert(typeof sandbox.exportAsJSON === 'function', 'Smoke test: exportAsJSON missing');
+assert(typeof sandbox.exportFifoAuditCSV === 'function', 'Smoke test: exportFifoAuditCSV missing');
 assert(typeof sandbox.toggleSales === 'function', 'Smoke test: toggleSales missing');
+assert(typeof sandbox.toggleFifoAudit === 'function', 'Smoke test: toggleFifoAudit missing');
 assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividends missing');
 assert(typeof sandbox.toggleInterests === 'function', 'Smoke test: toggleInterests missing');
 assert(typeof sandbox.initializeTrading212App === 'function', 'Smoke test: initializeTrading212App missing');

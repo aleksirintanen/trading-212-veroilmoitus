@@ -299,6 +299,62 @@ function calculateTaxes() {
                     tbody.appendChild(row);
                 }
 
+                const allocatedAcquisitionFeesTotal = reportRows.reduce((sum, row) => sum + (row.acquisitionFeesEur || 0), 0);
+                const allocatedSellFeesTotal = reportRows.reduce((sum, row) => sum + (row.sellFeesEur || 0), 0);
+                document.getElementById('allocatedAcquisitionFees').textContent = formatCurrency(allocatedAcquisitionFeesTotal);
+                document.getElementById('allocatedSellFees').textContent = formatCurrency(allocatedSellFeesTotal);
+
+                const fifoAuditBody = document.querySelector('#fifoAuditTable tbody');
+                if (fifoAuditBody) {
+                    fifoAuditBody.innerHTML = '';
+                    const fifoAuditEmptyState = document.getElementById('fifoAuditEmptyState');
+                    if (fifoAuditEmptyState?.classList) {
+                        fifoAuditEmptyState.classList.toggle('show', reportRows.length === 0);
+                    }
+
+                    for (const rowData of reportRows) {
+                        const row = document.createElement('tr');
+                        const cells = [
+                            rowData.soldDate.toLocaleDateString('fi-FI'),
+                            formatSaleInstrumentDisplay(rowData),
+                            formatQuantity(rowData.qty),
+                            rowData.acquiredDate.toLocaleDateString('fi-FI'),
+                            formatQuantity(rowData.qty),
+                            formatQuantity(rowData.lotOriginalQty),
+                            formatQuantity(rowData.lotQtyAfterSale),
+                            formatCurrency(rowData.acquisitionPriceEur),
+                            formatCurrency(rowData.acquisitionFeesEur),
+                            formatCurrency(rowData.sellFeesEur),
+                            formatDeemedCostDisplay(rowData),
+                            rowData.methodUsed,
+                            formatCurrency(rowData.gainEur)
+                        ];
+
+                        const amountColumns = new Set([2, 4, 5, 6, 7, 8, 9, 10, 12]);
+
+                        for (let index = 0; index < cells.length; index++) {
+                            const cell = document.createElement('td');
+                            cell.textContent = cells[index];
+
+                            if (amountColumns.has(index)) {
+                                cell.classList.add('amount-cell');
+                            }
+
+                            if (index === 12) {
+                                if (rowData.gainEur > 0) {
+                                    cell.classList.add('sales-gain-positive');
+                                } else if (rowData.gainEur < 0) {
+                                    cell.classList.add('sales-gain-negative');
+                                }
+                            }
+
+                            row.appendChild(cell);
+                        }
+
+                        fifoAuditBody.appendChild(row);
+                    }
+                }
+
                 const dividendsBody = document.querySelector('#dividendsTable tbody');
                 if (dividendsBody) {
                     dividendsBody.innerHTML = '';
@@ -370,6 +426,9 @@ function calculateTaxes() {
                     interestIncome: interestIncome,
                     dividends: dividendRows,
                     interests: interestRows,
+                    fifoAuditRows: reportRows,
+                    allocatedAcquisitionFees: allocatedAcquisitionFeesTotal,
+                    allocatedSellFees: allocatedSellFeesTotal,
                     custodyFees: custodyFees,
                     custodyDeductible: custodyDeductible,
                     netCapitalIncome: netCapitalIncome,

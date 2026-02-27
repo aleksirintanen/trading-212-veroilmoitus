@@ -1,4 +1,38 @@
 (function(global) {
+    const HAS_DECIMAL = typeof global.Decimal === 'function';
+
+    function toNumeric(value) {
+        const num = Number(value);
+        return Number.isFinite(num) ? num : 0;
+    }
+
+    function decimalAdd(a, b) {
+        if (HAS_DECIMAL) return new global.Decimal(a).plus(b).toNumber();
+        return toNumeric(a) + toNumeric(b);
+    }
+
+    function decimalSub(a, b) {
+        if (HAS_DECIMAL) return new global.Decimal(a).minus(b).toNumber();
+        return toNumeric(a) - toNumeric(b);
+    }
+
+    function decimalMul(a, b) {
+        if (HAS_DECIMAL) return new global.Decimal(a).times(b).toNumber();
+        return toNumeric(a) * toNumeric(b);
+    }
+
+    function decimalDiv(a, b) {
+        const divisor = toNumeric(b);
+        if (Math.abs(divisor) <= 1e-18) return 0;
+        if (HAS_DECIMAL) return new global.Decimal(a).div(b).toNumber();
+        return toNumeric(a) / divisor;
+    }
+
+    function decimalAbs(a) {
+        if (HAS_DECIMAL) return new global.Decimal(a).abs().toNumber();
+        return Math.abs(toNumeric(a));
+    }
+
     const TAX_RULES_BY_YEAR = {
         2025: {
             capitalIncomeBracketEur: 30_000,
@@ -44,20 +78,21 @@
         constructor(acquired, qty, purchaseTotal, acquisitionFeeTotal) {
             this.acquired = acquired;
             this.qty = qty;
+            this.originalQty = qty;
             this.purchaseTotal = purchaseTotal;
             this.acquisitionFeeTotal = acquisitionFeeTotal;
         }
 
         get unitPurchaseCost() {
-            return this.qty > 0 ? this.purchaseTotal / this.qty : 0;
+            return this.qty > 0 ? decimalDiv(this.purchaseTotal, this.qty) : 0;
         }
 
         get unitAcquisitionFee() {
-            return this.qty > 0 ? this.acquisitionFeeTotal / this.qty : 0;
+            return this.qty > 0 ? decimalDiv(this.acquisitionFeeTotal, this.qty) : 0;
         }
 
         get unitCostTotal() {
-            return this.unitPurchaseCost + this.unitAcquisitionFee;
+            return decimalAdd(this.unitPurchaseCost, this.unitAcquisitionFee);
         }
     }
 
@@ -101,7 +136,8 @@
         applySplit(symbol, ratio) {
             if (ratio <= 0) throw new Error('split ratio must be > 0');
             for (let lot of this.getLots(symbol)) {
-                lot.qty *= ratio;
+                lot.qty = decimalMul(lot.qty, ratio);
+                lot.originalQty = decimalMul(lot.originalQty, ratio);
             }
         }
 
@@ -121,18 +157,29 @@
 
                 const lot = lots[0];
                 const take = Math.min(lot.qty, remaining);
-                const purchasePiece = lot.unitPurchaseCost * take;
-                const acquisitionFeePiece = lot.unitAcquisitionFee * take;
-                const totalCostPiece = purchasePiece + acquisitionFeePiece;
+                const lotQtyBeforeSale = lot.qty;
+                const purchasePiece = decimalMul(lot.unitPurchaseCost, take);
+                const acquisitionFeePiece = decimalMul(lot.unitAcquisitionFee, take);
+                const totalCostPiece = decimalAdd(purchasePiece, acquisitionFeePiece);
+                actualPurchaseCost = decimalAdd(actualPurchaseCost, purchasePiece);
+                actualAcquisitionFees = decimalAdd(actualAcquisitionFees, acquisitionFeePiece);
 
-                lotsUsed.push([lot.acquired, take, purchasePiece, acquisitionFeePiece, totalCostPiece]);
-                actualPurchaseCost += purchasePiece;
-                actualAcquisitionFees += acquisitionFeePiece;
+                lot.qty = decimalSub(lot.qty, take);
+                lot.purchaseTotal = decimalSub(lot.purchaseTotal, purchasePiece);
+                lot.acquisitionFeeTotal = decimalSub(lot.acquisitionFeeTotal, acquisitionFeePiece);
+                const lotQtyAfterSale = lot.qty;
 
-                lot.qty -= take;
-                lot.purchaseTotal -= purchasePiece;
-                lot.acquisitionFeeTotal -= acquisitionFeePiece;
-                remaining -= take;
+                lotsUsed.push([
+                    lot.acquired,
+                    take,
+                    purchasePiece,
+                    acquisitionFeePiece,
+                    totalCostPiece,
+                    lot.originalQty,
+                    lotQtyBeforeSale,
+                    lotQtyAfterSale
+                ]);
+                remaining = decimalSub(remaining, take);
 
                 if (lot.qty <= 1e-12) {
                     lots.shift();
@@ -147,11 +194,11 @@
             const deemedRate = holdingDaysMin >= 3650
                 ? this.taxRules.deemedCost10YOrMore
                 : this.taxRules.deemedCostUnder10Y;
-            const deemedCost = proceeds * deemedRate;
-            const actualCost = actualPurchaseCost + actualAcquisitionFees;
+            const deemedCost = decimalMul(proceeds, deemedRate);
+            const actualCost = decimalAdd(actualPurchaseCost, actualAcquisitionFees);
 
-            const gainActual = proceeds - actualCost - feeEur;
-            const gainDeemed = proceeds - deemedCost;
+            const gainActual = decimalSub(decimalSub(proceeds, actualCost), feeEur);
+            const gainDeemed = decimalSub(proceeds, deemedCost);
 
             let method, gain;
             if (gainDeemed < gainActual) {
@@ -184,7 +231,7 @@
         if (netCapitalIncome <= 0) return 0;
         const low = Math.min(netCapitalIncome, taxRules.capitalIncomeBracketEur);
         const high = Math.max(0, netCapitalIncome - taxRules.capitalIncomeBracketEur);
-        return low * taxRules.capitalTaxLow + high * taxRules.capitalTaxHigh;
+        return decimalAdd(decimalMul(low, taxRules.capitalTaxLow), decimalMul(high, taxRules.capitalTaxHigh));
     }
 
     function parseDate(dateString) {
@@ -310,7 +357,7 @@
         for (const sale of [...(sales || [])].sort((a, b) => a.soldDate - b.soldDate)) {
             const lots = sale.lotsUsed || [];
             const totalQty = Number(sale.qty || 0);
-            const hasQty = Math.abs(totalQty) > 1e-12;
+            const hasQty = decimalAbs(totalQty) > 1e-12;
 
             if (!lots.length) {
                 rows.push({
@@ -331,14 +378,14 @@
             }
 
             for (const lot of lots) {
-                const [acquiredDate, lotQty, purchasePiece, acquisitionFeePiece] = lot;
-                const weight = hasQty ? (lotQty / totalQty) : 0;
-                const proceedsPiece = sale.proceedsEur * weight;
-                const sellFeesPiece = sale.sellFeesEur * weight;
-                const deemedCostPiece = sale.deemedCostEur * weight;
+                const [acquiredDate, lotQty, purchasePiece, acquisitionFeePiece, _totalCostPiece, lotOriginalQty, lotQtyBeforeSale, lotQtyAfterSale] = lot;
+                const weight = hasQty ? decimalDiv(lotQty, totalQty) : 0;
+                const proceedsPiece = decimalMul(sale.proceedsEur, weight);
+                const sellFeesPiece = decimalMul(sale.sellFeesEur, weight);
+                const deemedCostPiece = decimalMul(sale.deemedCostEur, weight);
                 const gainPiece = sale.methodUsed === 'DEEMED'
-                    ? (proceedsPiece - deemedCostPiece)
-                    : (proceedsPiece - purchasePiece - acquisitionFeePiece - sellFeesPiece);
+                    ? decimalSub(proceedsPiece, deemedCostPiece)
+                    : decimalSub(decimalSub(decimalSub(proceedsPiece, purchasePiece), acquisitionFeePiece), sellFeesPiece);
 
                 rows.push({
                     symbol: sale.symbol,
@@ -352,7 +399,10 @@
                     sellFeesEur: sellFeesPiece,
                     deemedCostEur: deemedCostPiece,
                     methodUsed: sale.methodUsed,
-                    gainEur: gainPiece
+                    gainEur: gainPiece,
+                    lotOriginalQty: Number.isFinite(lotOriginalQty) ? lotOriginalQty : lotQty,
+                    lotQtyBeforeSale: Number.isFinite(lotQtyBeforeSale) ? lotQtyBeforeSale : lotQty,
+                    lotQtyAfterSale: Number.isFinite(lotQtyAfterSale) ? lotQtyAfterSale : 0
                 });
             }
         }
@@ -500,39 +550,69 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const transactions = [];
-        for (let row of rows) {
-            const action = row['action'].trim().toLowerCase();
-            const timeStr = row['time'].trim();
-            const ticker = sanitizeQuotedText(row['ticker']).toUpperCase();
-            const symbolName = getSymbolNameFromRow(row);
-            const qty = parseFloat(row['no. of shares']) || 0;
-            const grossTotal = parseFloat(row['gross total']) || 0;
-            const fxFee = parseFloat(row['currency conversion fee']) || 0;
-
-            const date = parseDate(timeStr);
-
-            let type = 'IGNORE';
-            if (action.includes('market buy') || action.includes('limit buy') || action.match(/\bbuy\b/)) {
-                type = 'BUY';
-            } else if (action.includes('market sell') || action.includes('limit sell') || action.match(/\bsell\b/)) {
-                type = 'SELL';
-            } else if (action.includes('interest on cash')) {
-                type = 'INTEREST';
-            } else if (action.includes('dividend')) {
-                type = 'DIVIDEND';
+        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
+            const raw = String(value ?? '').trim();
+            if (raw === '') {
+                if (allowEmpty) return 0;
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
             }
+            const parsed = Number(raw.replace(',', '.'));
+            if (!Number.isFinite(parsed)) {
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
+            }
+            return parsed;
+        };
 
-            if (type !== 'IGNORE') {
-                transactions.push({
-                    date: date,
-                    type: type,
-                    symbol: ticker || 'CASH',
-                    symbolName: symbolName,
-                    qty: qty,
-                    gross_total_eur: Math.abs(grossTotal),
-                    fx_fee_eur: Math.abs(fxFee)
-                });
+        const transactions = [];
+        for (let index = 0; index < rows.length; index++) {
+            const row = rows[index];
+            const rowNumber = index + 2;
+
+            try {
+                const action = String(row['action'] || '').trim().toLowerCase();
+                const timeStr = String(row['time'] || '').trim();
+                const ticker = sanitizeQuotedText(row['ticker']).toUpperCase();
+                const symbolName = getSymbolNameFromRow(row);
+                const qty = parseNumberField(row['no. of shares'], 'No. of shares', rowNumber, true);
+                const grossTotal = parseNumberField(row['gross total'], 'Gross Total', rowNumber, true);
+                const fxFee = parseNumberField(row['currency conversion fee'], 'Currency conversion fee', rowNumber, true);
+
+                if (!action) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "Action" puuttuu`);
+                }
+                if (!timeStr) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "Time" puuttuu`);
+                }
+
+                const date = parseDate(timeStr);
+
+                let type = 'IGNORE';
+                if (action.includes('market buy') || action.includes('limit buy') || action.match(/\bbuy\b/)) {
+                    type = 'BUY';
+                } else if (action.includes('market sell') || action.includes('limit sell') || action.match(/\bsell\b/)) {
+                    type = 'SELL';
+                } else if (action.includes('interest on cash')) {
+                    type = 'INTEREST';
+                } else if (action.includes('dividend')) {
+                    type = 'DIVIDEND';
+                }
+
+                if (type !== 'IGNORE') {
+                    transactions.push({
+                        date: date,
+                        type: type,
+                        symbol: ticker || 'CASH',
+                        symbolName: symbolName,
+                        qty: qty,
+                        gross_total_eur: decimalAbs(grossTotal),
+                        fx_fee_eur: decimalAbs(fxFee)
+                    });
+                }
+            } catch (error) {
+                if (String(error?.message || '').startsWith('Rivi ')) {
+                    throw error;
+                }
+                throw new Error(`Rivi ${rowNumber}: ${error.message}`);
             }
         }
 
@@ -574,25 +654,64 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const transactions = [];
-        for (let row of rows) {
-            const date = parseDate(row['date'].trim());
-            const type = row['type'].trim().toUpperCase();
-            const symbol = sanitizeQuotedText(row['symbol']).toUpperCase();
-            const symbolName = getSymbolNameFromRow(row);
-            const qty = parseFloat(row['qty']) || 0;
-            const priceEur = parseFloat(row['price_eur']) || 0;
-            const feeEur = parseFloat(row['fee_eur']) || 0;
+        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
+            const raw = String(value ?? '').trim();
+            if (raw === '') {
+                if (allowEmpty) return 0;
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
+            }
+            const parsed = Number(raw.replace(',', '.'));
+            if (!Number.isFinite(parsed)) {
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
+            }
+            return parsed;
+        };
 
-            transactions.push({
-                date: date,
-                type: type,
-                symbol: symbol,
-                symbolName: symbolName,
-                qty: qty,
-                price_eur: priceEur,
-                fee_eur: feeEur
-            });
+        const allowedTypes = new Set(['BUY', 'SELL', 'DIVIDEND', 'INTEREST', 'SPLIT', 'REVERSE_SPLIT', 'CUSTODY_FEE', 'FEE', 'CASHBACK']);
+        const transactions = [];
+        for (let index = 0; index < rows.length; index++) {
+            const row = rows[index];
+            const rowNumber = index + 2;
+
+            try {
+                const dateRaw = String(row['date'] || '').trim();
+                const type = String(row['type'] || '').trim().toUpperCase();
+                const symbol = sanitizeQuotedText(row['symbol']).toUpperCase();
+                const symbolName = getSymbolNameFromRow(row);
+                const qty = parseNumberField(row['qty'], 'qty', rowNumber, true);
+                const priceEur = parseNumberField(row['price_eur'], 'price_eur', rowNumber, true);
+                const feeEur = parseNumberField(row['fee_eur'], 'fee_eur', rowNumber, true);
+
+                if (!dateRaw) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "date" puuttuu`);
+                }
+                if (!type) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "type" puuttuu`);
+                }
+                if (!allowedTypes.has(type)) {
+                    throw new Error(`Rivi ${rowNumber}: tuntematon type "${type}"`);
+                }
+                if (!symbol) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "symbol" puuttuu`);
+                }
+
+                const date = parseDate(dateRaw);
+
+                transactions.push({
+                    date: date,
+                    type: type,
+                    symbol: symbol,
+                    symbolName: symbolName,
+                    qty: qty,
+                    price_eur: priceEur,
+                    fee_eur: feeEur
+                });
+            } catch (error) {
+                if (String(error?.message || '').startsWith('Rivi ')) {
+                    throw error;
+                }
+                throw new Error(`Rivi ${rowNumber}: ${error.message}`);
+            }
         }
 
         return transactions.sort((a, b) => a.date - b.date);

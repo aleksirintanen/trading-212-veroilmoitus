@@ -71,6 +71,11 @@
                     <div id="formatHelp"></div>
                 </div>
 
+                <div class="csv-preview-controls">
+                    <button id="togglePreviewVisibilityBtn" class="preview-control-btn" type="button" onclick="toggleCsvPreviewVisibility()" disabled>Näytä esikatselu</button>
+                    <button id="togglePreviewFullBtn" class="preview-control-btn" type="button" onclick="toggleCsvPreviewFull()" disabled>Näytä koko CSV</button>
+                </div>
+
                 <div class="summary-box csv-preview-box" id="csvPreviewBox">
                     <h3 style="margin-bottom: 12px;">CSV-esikatselu</h3>
                     <div class="help-text" id="csvPreviewMeta">Valitse tiedosto nähdäksesi esikatselun.</div>
@@ -176,6 +181,20 @@
                 </div>
 
                 <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Maksujen kohdistus (FIFO)</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Hankintakulut kohdistettu FIFO-loteille</div>
+                            <div class="summary-item-value" id="allocatedAcquisitionFees">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Myyntikulut kohdistettu myynneille</div>
+                            <div class="summary-item-value" id="allocatedSellFees">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
                     <h3 style="margin-bottom: 12px;">Käytetyt verosäännöt</h3>
                     <div class="help-text" id="taxRulesInfo">Lasketaan valitun verovuoden mukaan.</div>
                 </div>
@@ -199,6 +218,35 @@
                                     <th>Myyntikulut</th>
                                     <th>Hankintameno-olettama</th>
                                     <th>Voitto tai tappio</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <button class="toggle-sales" onclick="toggleFifoAudit()">🧾 Näytä/piilota FIFO-audit trail</button>
+
+                <div class="sales-section" id="fifoAuditSection">
+                    <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
+                    <div class="help-text sales-empty" id="fifoAuditEmptyState">Ei FIFO-audit rivejä valitulle verovuodelle.</div>
+                    <div class="sales-table-wrap">
+                        <table class="sales-table" id="fifoAuditTable">
+                            <thead>
+                                <tr>
+                                    <th>Myynti pvm</th>
+                                    <th>Arvopaperi</th>
+                                    <th>Myyty määrä</th>
+                                    <th>Hankinta pvm</th>
+                                    <th>Lotista käytetty määrä</th>
+                                    <th>Lotin alkuperäinen määrä</th>
+                                    <th>Lotista jäljellä myynnin jälkeen</th>
+                                    <th>Hankintahinta osuus</th>
+                                    <th>Hankintakulut osuus</th>
+                                    <th>Myyntikulut osuus</th>
+                                    <th>Hankintameno-olettama osuus</th>
+                                    <th>Menetelmä</th>
+                                    <th>Voitto/tappio osuus</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -258,6 +306,7 @@
                 <div class="export-buttons">
                     <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
                     <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
+                    <button id="exportFifoAuditCsvButton" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
                     <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
                 </div>
 
@@ -271,11 +320,12 @@
     </div>
 
         <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="assets/js/core/core-engine.js"></script>
-    <script src="assets/js/ui/preview-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/decimal.js@10.4.3/decimal.min.js"></script>
+    <script src="assets/js/core/core-engine.js?v=20260227-1"></script>
+    <script src="assets/js/ui/preview-ui.js?v=20260227-1"></script>
     <script src="assets/js/ui/pdf-export.js"></script>
-    <script src="assets/js/app-tax-calculation.js?v=20260227-2"></script>
-    <script src="assets/js/app-exports.js?v=20260227-2"></script>
+    <script src="assets/js/app-tax-calculation.js?v=20260227-3"></script>
+    <script src="assets/js/app-exports.js?v=20260227-3"></script>
     <script src="assets/js/app-init.js"></script>
 </body>
 </html>

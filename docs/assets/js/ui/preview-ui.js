@@ -1,14 +1,36 @@
 (function(global) {
     const CSV_PREVIEW_MAX_ROWS = 8;
+    let csvPreviewRows = [];
+    let csvPreviewSelectedFormat = 'trading212';
+    let csvPreviewVisible = true;
+    let csvPreviewShowAll = false;
+
+    function updateCsvPreviewControls() {
+        const visibilityButton = document.getElementById('togglePreviewVisibilityBtn');
+        const fullButton = document.getElementById('togglePreviewFullBtn');
+        const hasRows = csvPreviewRows.length > 0;
+
+        if (visibilityButton) {
+            visibilityButton.disabled = !hasRows;
+            visibilityButton.textContent = csvPreviewVisible ? 'Piilota esikatselu' : 'Näytä esikatselu';
+        }
+
+        if (fullButton) {
+            fullButton.disabled = !hasRows || csvPreviewRows.length <= CSV_PREVIEW_MAX_ROWS;
+            fullButton.textContent = csvPreviewShowAll ? 'Näytä vain alku' : 'Näytä koko CSV';
+        }
+    }
 
     function setExportButtonsState(hasResults, hasSales = false) {
         const jsonButton = document.getElementById('exportJsonButton');
         const salesCsvButton = document.getElementById('exportSalesCsvButton');
+        const fifoAuditCsvButton = document.getElementById('exportFifoAuditCsvButton');
         const pdfButton = document.getElementById('exportPdfButton');
 
         if (jsonButton) jsonButton.disabled = !hasResults;
         if (pdfButton) pdfButton.disabled = !hasResults;
         if (salesCsvButton) salesCsvButton.disabled = !(hasResults && hasSales);
+        if (fifoAuditCsvButton) fifoAuditCsvButton.disabled = !(hasResults && hasSales);
     }
 
     function setCalculatingState(isCalculating) {
@@ -37,6 +59,10 @@
     }
 
     function resetCsvPreview(message = 'Valitse tiedosto nähdäksesi esikatselun.') {
+        csvPreviewRows = [];
+        csvPreviewShowAll = false;
+        csvPreviewVisible = true;
+
         const previewBox = document.getElementById('csvPreviewBox');
         const previewMeta = document.getElementById('csvPreviewMeta');
         const previewWrap = document.getElementById('csvPreviewTableWrap');
@@ -50,34 +76,48 @@
         if (previewBox && previewBox.classList) {
             previewBox.classList.remove('show');
         }
+
+        updateCsvPreviewControls();
     }
 
     function renderCsvPreview(rows, selectedFormat) {
+        csvPreviewRows = Array.isArray(rows) ? rows : [];
+        csvPreviewSelectedFormat = selectedFormat || 'trading212';
+
         const previewBox = document.getElementById('csvPreviewBox');
         const previewMeta = document.getElementById('csvPreviewMeta');
         const previewWrap = document.getElementById('csvPreviewTableWrap');
 
         if (!previewBox || !previewMeta || !previewWrap) return;
 
+        if (!csvPreviewVisible) {
+            previewBox.classList.remove('show');
+            updateCsvPreviewControls();
+            return;
+        }
+
         previewBox.classList.add('show');
         previewWrap.textContent = '';
 
-        const detectedFormat = global.autoDetectFormat(rows);
+        const detectedFormat = global.autoDetectFormat(csvPreviewRows);
         const formatLabel = detectedFormat === 'trading212'
             ? 'Trading 212'
             : detectedFormat === 'manual'
                 ? 'Manuaalinen'
                 : 'Tuntematon';
 
-        if (!rows.length) {
+        if (!csvPreviewRows.length) {
             previewMeta.textContent = `CSV on tyhjä. Valittu muoto: ${selectedFormat}.`;
+            updateCsvPreviewControls();
             return;
         }
 
-        const headers = Object.keys(rows[0] || {});
-        const previewRows = rows.slice(0, CSV_PREVIEW_MAX_ROWS);
+        const headers = Object.keys(csvPreviewRows[0] || {});
+        const previewRows = csvPreviewShowAll
+            ? csvPreviewRows
+            : csvPreviewRows.slice(0, CSV_PREVIEW_MAX_ROWS);
 
-        previewMeta.textContent = `Rivejä: ${rows.length} | Sarakkeita: ${headers.length} | Tunnistettu muoto: ${formatLabel}`;
+        previewMeta.textContent = `Rivejä: ${csvPreviewRows.length} | Sarakkeita: ${headers.length} | Tunnistettu muoto: ${formatLabel}`;
 
         const table = document.createElement('table');
         table.className = 'csv-preview-table';
@@ -116,12 +156,26 @@
         table.appendChild(tbody);
         previewWrap.appendChild(table);
 
-        if (rows.length > previewRows.length) {
+        if (!csvPreviewShowAll && csvPreviewRows.length > previewRows.length) {
             const overflowNote = document.createElement('div');
             overflowNote.className = 'help-text';
             overflowNote.textContent = `Näytetään ${previewRows.length} ensimmäistä riviä.`;
             previewWrap.appendChild(overflowNote);
         }
+
+        updateCsvPreviewControls();
+    }
+
+    function toggleCsvPreviewVisibility() {
+        if (!csvPreviewRows.length) return;
+        csvPreviewVisible = !csvPreviewVisible;
+        renderCsvPreview(csvPreviewRows, csvPreviewSelectedFormat);
+    }
+
+    function toggleCsvPreviewFull() {
+        if (!csvPreviewRows.length || csvPreviewRows.length <= CSV_PREVIEW_MAX_ROWS) return;
+        csvPreviewShowAll = !csvPreviewShowAll;
+        renderCsvPreview(csvPreviewRows, csvPreviewSelectedFormat);
     }
 
     function previewSelectedFile() {
@@ -145,6 +199,8 @@
             try {
                 const csvText = event.target?.result || '';
                 const rows = global.parseCSV(csvText);
+                csvPreviewVisible = true;
+                csvPreviewShowAll = false;
                 renderCsvPreview(rows, selectedFormat);
                 global.lastResults = null;
                 setExportButtonsState(false, false);
@@ -169,6 +225,11 @@
         setSalesEmptyState,
         hideResults,
         resetCsvPreview,
-        previewSelectedFile
+        previewSelectedFile,
+        toggleCsvPreviewVisibility,
+        toggleCsvPreviewFull
     };
+
+    global.toggleCsvPreviewVisibility = toggleCsvPreviewVisibility;
+    global.toggleCsvPreviewFull = toggleCsvPreviewFull;
 })(window);
