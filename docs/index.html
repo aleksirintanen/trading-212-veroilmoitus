@@ -118,8 +118,8 @@
                     <button type="button" class="demo-exit-button" id="exitDemoModeButton" onclick="exitDemoMode()">Poistu demotilasta</button>
                 </div>
                 <div class="export-buttons export-buttons-global">
-                    <button id="exportPdfButton" type="button" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
-                    <button id="exportTaxSummaryPdfButton" type="button" onclick="exportTaxSummaryPdf()" disabled>📄 Lataa veroyhteenveto PDF</button>
+                    <button id="exportPdfButton" type="button" onclick="export9APdf()" disabled>📄 Lataa 9A-PDF</button>
+                    <button id="exportTaxSummaryPdfButton" type="button" onclick="exportTaxSummaryPdf()" disabled>📄 Lataa veroyhteenveto-PDF</button>
                     <button id="exportZipButton" type="button" onclick="exportAllAsZip()" disabled>🗜️ Lataa kaikki (ZIP)</button>
                 </div>
 
@@ -177,7 +177,7 @@
 
                     <div class="summary-actions">
                         <button class="toggle-sales" id="toggleSalesButton" type="button" onclick="toggleSales()">📋 Näytä myynnit</button>
-                        <button id="exportSalesCsvButton" type="button" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV</button>
+                        <button id="exportSalesCsvButton" type="button" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit (CSV)</button>
                     </div>
 
                     <div class="sales-section" id="salesSection">
@@ -220,7 +220,7 @@
 
                     <div class="summary-actions">
                         <button class="toggle-sales" id="toggleDividendsButton" type="button" onclick="toggleDividends()">💶 Näytä osingot</button>
-                        <button id="exportDividendsCsvButton" type="button" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
+                        <button id="exportDividendsCsvButton" type="button" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot (CSV)</button>
                     </div>
 
                     <div class="sales-section" id="dividendsSection">
@@ -252,7 +252,7 @@
 
                     <div class="summary-actions">
                         <button class="toggle-sales" id="toggleInterestsButton" type="button" onclick="toggleInterests()">🏦 Näytä korot</button>
-                        <button id="exportInterestsCsvButton" type="button" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
+                        <button id="exportInterestsCsvButton" type="button" onclick="exportInterestsCSV()" disabled>📥 Lataa korot (CSV)</button>
                     </div>
 
                     <div class="sales-section" id="interestsSection">
@@ -325,12 +325,12 @@
                     </div>
 
                     <div class="summary-actions">
-                        <button class="toggle-sales" id="toggleFifoAuditButton" type="button" onclick="toggleFifoAudit()">🧾 Näytä FIFO-audit trail</button>
-                        <button id="exportFifoAuditCsvButton" type="button" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
+                        <button class="toggle-sales" id="toggleFifoAuditButton" type="button" onclick="toggleFifoAudit()">🧾 Näytä FIFO-auditointi</button>
+                        <button id="exportFifoAuditCsvButton" type="button" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO-auditointi (CSV)</button>
                     </div>
                     <div class="sales-section" id="fifoAuditSection">
-                        <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
-                        <div class="help-text sales-empty" id="fifoAuditEmptyState">Ei FIFO-audit rivejä valitulle verovuodelle.</div>
+                        <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-auditointi (lotit + maksujen kohdistus)</h3>
+                        <div class="help-text sales-empty" id="fifoAuditEmptyState">Ei FIFO-auditoinnin rivejä valitulle verovuodelle.</div>
                         <div class="sales-table-wrap">
                             <table class="sales-table" id="fifoAuditTable">
                                 <thead>
@@ -359,7 +359,7 @@
                 <div class="guidance">
                     <h3>📌 Yleiset ohjeet ilmoittamiseen</h3>
                     <ul>
-                        <li class="info-line"><span class="info-label">Arvopaperien luovutukset:</span> <span class="info-value">Ilmoita luovutusvoitot/-tappiot lomakkeella 9A / OmaVero.</span></li>
+                        <li class="info-line"><span class="info-label">Arvopaperien luovutukset:</span> <span class="info-value">Ilmoita luovutusvoitot/-tappiot 9A-lomakkeella OmaVerossa.</span></li>
                         <li class="info-line"><span class="info-label">Listattujen yhtiöiden osingot:</span> <span class="info-value">Veronalainen osuus määräytyy valitun verovuoden sääntöjen mukaan.</span></li>
                         <li class="info-line"><span class="info-label">Korkotulot:</span> <span class="info-value">Pääomatuloa. Osa koroista voi olla lähdeverotuksen piirissä palvelusta riippuen.</span></li>
                         <li class="info-line"><span class="info-label">Hoito- ja säilytysmenot:</span> <span class="info-value">Ilmoita kokonaismäärä; 50 € omavastuu huomioidaan verotuksessa.</span></li>
@@ -377,7 +377,7 @@
             <details class="advanced-actions">
                 <summary>Lisätoiminnot</summary>
                 <div class="export-buttons advanced-export-buttons">
-                    <button id="exportJsonButton" type="button" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
+                    <button id="exportJsonButton" type="button" onclick="exportAsJSON()" disabled>📥 Lataa JSON-tiedosto</button>
                 </div>
             </details>
         </div>
