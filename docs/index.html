@@ -106,6 +106,7 @@
                 <div class="section-subtitle">Alla yhteenveto sekä OmaVeroa varten tarvittavat koontitiedot.</div>
 
                 <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Luovutusvoitot/-tappiot (9A)</h3>
                     <div class="summary-grid">
                         <div class="summary-item">
                             <div class="summary-item-label">Luovutusvoitot</div>
@@ -118,34 +119,6 @@
                         <div class="summary-item">
                             <div class="summary-item-label">Netto luovutusvoitto</div>
                             <div class="summary-item-value" id="netGains">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Osingot (brutto)</div>
-                            <div class="summary-item-value" id="dividendGross">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Osingot (veronalainen 85%)</div>
-                            <div class="summary-item-value" id="dividendTaxable">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Korkotulot</div>
-                            <div class="summary-item-value" id="interestIncome">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Hoito-/säilytyskulut</div>
-                            <div class="summary-item-value" id="custodyFees">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Vähennyskelpoiset kulut</div>
-                            <div class="summary-item-value" id="deductibleFees">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Pääomatulo yhteensä</div>
-                            <div class="summary-item-value" id="netCapitalIncome">0.00 €</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-item-label">Arvioitu pääomatuloverot</div>
-                            <div class="summary-item-value" id="estimatedTax">0.00 €</div>
                         </div>
                     </div>
                 </div>
@@ -181,15 +154,53 @@
                 </div>
 
                 <div class="summary-box">
-                    <h3 style="margin-bottom: 12px;">Maksujen kohdistus (FIFO)</h3>
+                    <h3 style="margin-bottom: 12px;">Osingot</h3>
                     <div class="summary-grid">
                         <div class="summary-item">
-                            <div class="summary-item-label">Hankintakulut kohdistettu FIFO-loteille</div>
-                            <div class="summary-item-value" id="allocatedAcquisitionFees">0.00 €</div>
+                            <div class="summary-item-label">Osingot (brutto)</div>
+                            <div class="summary-item-value" id="dividendGross">0.00 €</div>
                         </div>
                         <div class="summary-item">
-                            <div class="summary-item-label">Myyntikulut kohdistettu myynneille</div>
-                            <div class="summary-item-value" id="allocatedSellFees">0.00 €</div>
+                            <div class="summary-item-label">Osingot (veronalainen 85%)</div>
+                            <div class="summary-item-value" id="dividendTaxable">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Korkotulot</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Korkotulot</div>
+                            <div class="summary-item-value" id="interestIncome">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Vähennykset</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Hoito-/säilytyskulut</div>
+                            <div class="summary-item-value" id="custodyFees">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Vähennyskelpoiset kulut</div>
+                            <div class="summary-item-value" id="deductibleFees">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Yhteissumma verotukseen</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Pääomatulo yhteensä</div>
+                            <div class="summary-item-value" id="netCapitalIncome">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Arvioitu pääomatuloverot</div>
+                            <div class="summary-item-value" id="estimatedTax">0.00 €</div>
                         </div>
                     </div>
                 </div>
@@ -204,7 +215,21 @@
                     <div class="help-text" id="taxRulesInfo">Lasketaan valitun verovuoden mukaan.</div>
                 </div>
 
-                <button class="toggle-sales" onclick="toggleSales()">📋 Näytä/piilota myynnit</button>
+                <div class="summary-box">
+                    <h3 style="margin-bottom: 12px;">Tarkistus: maksujen kohdistus (FIFO)</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Hankintakulut kohdistettu FIFO-loteille</div>
+                            <div class="summary-item-value" id="allocatedAcquisitionFees">0.00 €</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Myyntikulut kohdistettu myynneille</div>
+                            <div class="summary-item-value" id="allocatedSellFees">0.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="toggle-sales" id="toggleSalesButton" onclick="toggleSales()">📋 Näytä myynnit</button>
 
                 <div class="sales-section" id="salesSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Myynnit (FIFO + hankintameno-olettama)</h3>
@@ -230,7 +255,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" onclick="toggleFifoAudit()">🧾 Näytä/piilota FIFO-audit trail</button>
+                <button class="toggle-sales" id="toggleFifoAuditButton" onclick="toggleFifoAudit()">📋 Näytä FIFO-audit trail</button>
 
                 <div class="sales-section" id="fifoAuditSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">FIFO-audit trail (lotit + maksujen kohdistus)</h3>
@@ -259,7 +284,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" onclick="toggleDividends()">💶 Näytä/piilota osingot</button>
+                <button class="toggle-sales" id="toggleDividendsButton" onclick="toggleDividends()">📋 Näytä osingot</button>
 
                 <div class="sales-section" id="dividendsSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Osingot (brutto)</h3>
@@ -278,7 +303,7 @@
                     </div>
                 </div>
 
-                <button class="toggle-sales" onclick="toggleInterests()">🏦 Näytä/piilota korot</button>
+                <button class="toggle-sales" id="toggleInterestsButton" onclick="toggleInterests()">📋 Näytä korot</button>
 
                 <div class="sales-section" id="interestsSection">
                     <h3 style="margin-top: 20px; margin-bottom: 15px;">Korkotulot</h3>

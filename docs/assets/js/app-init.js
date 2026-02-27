@@ -54,6 +54,10 @@ function initializeTrading212App() {
     resetCsvPreview();
     setSalesEmptyState(false);
 
+    if (typeof refreshToggleButtonsState === 'function') {
+        refreshToggleButtonsState();
+    }
+
     const csvFileInput = document.getElementById('csvFile');
     if (csvFileInput && typeof csvFileInput.addEventListener === 'function') {
         csvFileInput.addEventListener('change', previewSelectedFile);

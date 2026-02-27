@@ -9,19 +9,49 @@ const {
 } = exportsCore;
 
 function toggleSales() {
-    document.getElementById('salesSection').classList.toggle('show');
+    toggleSection('salesSection', 'toggleSalesButton', 'myynnit');
 }
 
 function toggleFifoAudit() {
-    document.getElementById('fifoAuditSection').classList.toggle('show');
+    toggleSection('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail');
 }
 
 function toggleDividends() {
-    document.getElementById('dividendsSection').classList.toggle('show');
+    toggleSection('dividendsSection', 'toggleDividendsButton', 'osingot');
 }
 
 function toggleInterests() {
-    document.getElementById('interestsSection').classList.toggle('show');
+    toggleSection('interestsSection', 'toggleInterestsButton', 'korot');
+}
+
+function updateToggleButtonLabel(sectionId, buttonId, nounLabel) {
+    const section = document.getElementById(sectionId);
+    const button = document.getElementById(buttonId);
+    if (!section || !button) return;
+
+    const isVisible = !!(
+        section.classList && typeof section.classList.contains === 'function'
+            ? section.classList.contains('show')
+            : (typeof section.className === 'string' && section.className.split(/\s+/).includes('show'))
+    );
+    button.textContent = isVisible
+        ? `📋 Piilota ${nounLabel}`
+        : `📋 Näytä ${nounLabel}`;
+}
+
+function refreshToggleButtonsState() {
+    updateToggleButtonLabel('salesSection', 'toggleSalesButton', 'myynnit');
+    updateToggleButtonLabel('fifoAuditSection', 'toggleFifoAuditButton', 'FIFO-audit trail');
+    updateToggleButtonLabel('dividendsSection', 'toggleDividendsButton', 'osingot');
+    updateToggleButtonLabel('interestsSection', 'toggleInterestsButton', 'korot');
+}
+
+function toggleSection(sectionId, buttonId, nounLabel) {
+    const section = document.getElementById(sectionId);
+    if (!section || !section.classList) return;
+
+    section.classList.toggle('show');
+    updateToggleButtonLabel(sectionId, buttonId, nounLabel);
 }
 
 function exportAsJSON() {
@@ -190,10 +220,15 @@ window.toggleSales = toggleSales;
 window.toggleFifoAudit = toggleFifoAudit;
 window.toggleDividends = toggleDividends;
 window.toggleInterests = toggleInterests;
+window.refreshToggleButtonsState = refreshToggleButtonsState;
 window.exportAsJSON = exportAsJSON;
 window.exportAsSellersCSV = exportAsSellersCSV;
 window.exportFifoAuditCSV = exportFifoAuditCSV;
 window.exportDividendsCSV = exportDividendsCSV;
 window.exportInterestsCSV = exportInterestsCSV;
 window.export9APdf = export9APdf;
+
+if (typeof document !== 'undefined') {
+    refreshToggleButtonsState();
+}
 })();
