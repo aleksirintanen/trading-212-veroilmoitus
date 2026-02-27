@@ -94,6 +94,7 @@ function calculateTaxes() {
                 const book = new FifoBook(taxRules);
                 const sales = [];
                 const symbolNames = {};
+                const dataWarnings = [];
                 const dividendRows = [];
                 const interestRows = [];
 
@@ -101,6 +102,15 @@ function calculateTaxes() {
                 let dividendsTaxable = 0;
                 let interestIncome = 0;
                 let custodyFees = 0;
+
+                const pushWarning = (message) => {
+                    dataWarnings.push(message);
+                };
+
+                const getAvailableQty = (targetSymbol) => {
+                    const lots = book.getLots(targetSymbol) || [];
+                    return lots.reduce((sum, lot) => sum + Number(lot.qty || 0), 0);
+                };
 
                 for (let transaction of transactions) {
                     const d = transaction.date;
@@ -111,9 +121,16 @@ function calculateTaxes() {
 
                     if (symbolName && !symbolNames[symbol]) {
                         symbolNames[symbol] = symbolName;
+                    } else if (symbolName && symbolNames[symbol] && symbolNames[symbol] !== symbolName) {
+                        pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: eri nimivariantteja havaittu ("${symbolNames[symbol]}" vs "${symbolName}")`);
                     }
 
                     if (type === 'BUY') {
+                        if (!(qty > 0)) {
+                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: BUY-rivi ohitettu, määrä ei ole positiivinen (${qty})`);
+                            continue;
+                        }
+
                         let purchasePriceTotalEur, acquisitionFeeEur;
                         if (format === 'trading212') {
                             purchasePriceTotalEur = transaction.gross_total_eur;
@@ -125,6 +142,22 @@ function calculateTaxes() {
                         book.buy(symbol, d, qty, purchasePriceTotalEur, acquisitionFeeEur);
 
                     } else if (type === 'SELL') {
+                        if (!(qty > 0)) {
+                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: SELL-rivi ohitettu, määrä ei ole positiivinen (${qty})`);
+                            continue;
+                        }
+
+                        const availableQty = getAvailableQty(symbol);
+                        if (availableQty <= 1e-12) {
+                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: myynti ennen ostoja, rivi ohitettu (myyntimäärä ${formatQuantity(qty)})`);
+                            continue;
+                        }
+
+                        if (availableQty + 1e-12 < qty) {
+                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: myyntimäärä (${formatQuantity(qty)}) ylittää omistuksen (${formatQuantity(availableQty)}), rivi ohitettu`);
+                            continue;
+                        }
+
                         let proceedsEur, feesEur;
                         if (format === 'trading212') {
                             proceedsEur = transaction.gross_total_eur;
@@ -304,6 +337,23 @@ function calculateTaxes() {
                 document.getElementById('allocatedAcquisitionFees').textContent = formatCurrency(allocatedAcquisitionFeesTotal);
                 document.getElementById('allocatedSellFees').textContent = formatCurrency(allocatedSellFeesTotal);
 
+                const warningsBox = document.getElementById('dataWarningsBox');
+                const warningsList = document.getElementById('dataWarningsList');
+                if (warningsBox?.classList && warningsList) {
+                    warningsList.innerHTML = '';
+
+                    if (dataWarnings.length > 0) {
+                        for (const warning of dataWarnings) {
+                            const item = document.createElement('li');
+                            item.textContent = warning;
+                            warningsList.appendChild(item);
+                        }
+                        warningsBox.classList.add('show');
+                    } else {
+                        warningsBox.classList.remove('show');
+                    }
+                }
+
                 const fifoAuditBody = document.querySelector('#fifoAuditTable tbody');
                 if (fifoAuditBody) {
                     fifoAuditBody.innerHTML = '';
@@ -429,6 +479,7 @@ function calculateTaxes() {
                     fifoAuditRows: reportRows,
                     allocatedAcquisitionFees: allocatedAcquisitionFeesTotal,
                     allocatedSellFees: allocatedSellFeesTotal,
+                    dataWarnings: dataWarnings,
                     custodyFees: custodyFees,
                     custodyDeductible: custodyDeductible,
                     netCapitalIncome: netCapitalIncome,
@@ -450,7 +501,12 @@ function calculateTaxes() {
                     sales: sales
                 };
 
-                setExportButtonsState(true, sales.length > 0);
+                setExportButtonsState(
+                    true,
+                    sales.length > 0,
+                    dividendRows.length > 0,
+                    interestRows.length > 0
+                );
                 document.getElementById('results').classList.add('show');
 
             } catch (error) {

@@ -194,6 +194,11 @@
                     </div>
                 </div>
 
+                <div class="summary-box warnings-box" id="dataWarningsBox">
+                    <h3 style="margin-bottom: 12px;">⚠️ Havaitut varoitukset datassa</h3>
+                    <ul class="warnings-list" id="dataWarningsList"></ul>
+                </div>
+
                 <div class="summary-box">
                     <h3 style="margin-bottom: 12px;">Käytetyt verosäännöt</h3>
                     <div class="help-text" id="taxRulesInfo">Lasketaan valitun verovuoden mukaan.</div>
@@ -307,6 +312,8 @@
                     <button id="exportJsonButton" onclick="exportAsJSON()" disabled>📥 Lataa JSON</button>
                     <button id="exportSalesCsvButton" onclick="exportAsSellersCSV()" disabled>📥 Lataa myynnit CSV:ksi</button>
                     <button id="exportFifoAuditCsvButton" onclick="exportFifoAuditCSV()" disabled>📥 Lataa FIFO audit CSV</button>
+                    <button id="exportDividendsCsvButton" onclick="exportDividendsCSV()" disabled>📥 Lataa osingot CSV</button>
+                    <button id="exportInterestsCsvButton" onclick="exportInterestsCSV()" disabled>📥 Lataa korot CSV</button>
                     <button id="exportPdfButton" onclick="export9APdf()" disabled>📄 Lataa 9A PDF</button>
                 </div>
 
@@ -325,7 +332,7 @@
     <script src="assets/js/ui/preview-ui.js?v=20260227-1"></script>
     <script src="assets/js/ui/pdf-export.js"></script>
     <script src="assets/js/app-tax-calculation.js?v=20260227-3"></script>
-    <script src="assets/js/app-exports.js?v=20260227-3"></script>
+    <script src="assets/js/app-exports.js?v=20260227-4"></script>
     <script src="assets/js/app-init.js"></script>
 </body>
 </html>

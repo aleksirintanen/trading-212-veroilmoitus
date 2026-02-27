@@ -1,0 +1,6 @@
+date,type,symbol,qty,price_eur,fee_eur,name
+2025-01-10,SELL,VWCE,0.50,110.00,0.00,Vanguard FTSE All-World (Acc)
+2025-01-15,BUY,VWCE,0.30,100.00,0.00,Vanguard FTSE All-World (Acc)
+2025-01-20,SELL,VWCE,0.40,108.00,0.00,Vanguard FTSE All-World (Acc)
+2025-01-25,BUY,VWCE,0.20,102.00,0.00,Vanguard FTSE All-World ACC
+2025-01-30,SELL,VWCE,0.45,109.00,0.00,Vanguard FTSE All-World (Acc)

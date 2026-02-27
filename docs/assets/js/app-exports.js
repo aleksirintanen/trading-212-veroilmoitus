@@ -117,6 +117,66 @@ function exportFifoAuditCSV() {
     URL.revokeObjectURL(url);
 }
 
+function exportDividendsCSV() {
+    if (!window.lastResults) {
+        alert('Laske ensin verot');
+        return;
+    }
+
+    const rows = Array.isArray(window.lastResults.dividends) ? window.lastResults.dividends : [];
+    if (!rows.length) {
+        alert('Ei osinkorivejä exporttia varten');
+        return;
+    }
+
+    let csv = 'Päivä,Arvopaperi,Brutto-osinko\n';
+    for (const row of rows) {
+        csv += [
+            row.date.toLocaleDateString('fi-FI'),
+            formatSaleInstrumentDisplay({ symbol: row.symbol, symbolName: row.symbolName }),
+            formatNumber(row.amount).replace(',', '.')
+        ].join(',') + '\n';
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `osingot_${window.lastResults.year}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportInterestsCSV() {
+    if (!window.lastResults) {
+        alert('Laske ensin verot');
+        return;
+    }
+
+    const rows = Array.isArray(window.lastResults.interests) ? window.lastResults.interests : [];
+    if (!rows.length) {
+        alert('Ei korkorivejä exporttia varten');
+        return;
+    }
+
+    let csv = 'Päivä,Tapahtuma,Määrä\n';
+    for (const row of rows) {
+        csv += [
+            row.date.toLocaleDateString('fi-FI'),
+            'Interest on cash',
+            formatNumber(row.amount).replace(',', '.')
+        ].join(',') + '\n';
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `korot_${window.lastResults.year}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 function export9APdf() {
     if (!window.AppPdfExport || typeof window.AppPdfExport.export9APdf !== 'function') {
         alert('PDF-vienti ei ole käytettävissä tällä hetkellä.');
@@ -133,5 +193,7 @@ window.toggleInterests = toggleInterests;
 window.exportAsJSON = exportAsJSON;
 window.exportAsSellersCSV = exportAsSellersCSV;
 window.exportFifoAuditCSV = exportFifoAuditCSV;
+window.exportDividendsCSV = exportDividendsCSV;
+window.exportInterestsCSV = exportInterestsCSV;
 window.export9APdf = export9APdf;
 })();

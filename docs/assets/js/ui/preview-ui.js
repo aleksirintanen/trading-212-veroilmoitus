@@ -21,16 +21,20 @@
         }
     }
 
-    function setExportButtonsState(hasResults, hasSales = false) {
+    function setExportButtonsState(hasResults, hasSales = false, hasDividends = false, hasInterests = false) {
         const jsonButton = document.getElementById('exportJsonButton');
         const salesCsvButton = document.getElementById('exportSalesCsvButton');
         const fifoAuditCsvButton = document.getElementById('exportFifoAuditCsvButton');
+        const dividendsCsvButton = document.getElementById('exportDividendsCsvButton');
+        const interestsCsvButton = document.getElementById('exportInterestsCsvButton');
         const pdfButton = document.getElementById('exportPdfButton');
 
         if (jsonButton) jsonButton.disabled = !hasResults;
         if (pdfButton) pdfButton.disabled = !hasResults;
         if (salesCsvButton) salesCsvButton.disabled = !(hasResults && hasSales);
         if (fifoAuditCsvButton) fifoAuditCsvButton.disabled = !(hasResults && hasSales);
+        if (dividendsCsvButton) dividendsCsvButton.disabled = !(hasResults && hasDividends);
+        if (interestsCsvButton) interestsCsvButton.disabled = !(hasResults && hasInterests);
     }
 
     function setCalculatingState(isCalculating) {

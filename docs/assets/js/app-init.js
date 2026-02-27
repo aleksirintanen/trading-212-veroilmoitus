@@ -10,7 +10,9 @@ function validateRequiredModules() {
     if (typeof exportAsJSON !== 'function') missing.push('exportAsJSON (assets/js/app-exports.js)');
     if (typeof exportAsSellersCSV !== 'function') missing.push('exportAsSellersCSV (assets/js/app-exports.js)');
     if (typeof exportFifoAuditCSV !== 'function') missing.push('exportFifoAuditCSV (assets/js/app-exports.js)');
-    if (typeof export9APdf !== 'function') missing.push('export9APdf (assets/js/app-exports.js)');
+        if (typeof export9APdf !== 'function') missing.push('export9APdf (assets/js/app-exports.js)');
+        if (typeof exportDividendsCSV !== 'function') missing.push('exportDividendsCSV (assets/js/app-exports.js)');
+        if (typeof exportInterestsCSV !== 'function') missing.push('exportInterestsCSV (assets/js/app-exports.js)');
 
     if (missing.length === 0) {
         return true;
