@@ -619,25 +619,211 @@
         return transactions.sort((a, b) => a.date - b.date);
     }
 
+    function parseRevolut(rows) {
+        const requiredColumns = ['date', 'type', 'ticker', 'quantity', 'price', 'fee', 'currency'];
+        if (rows.length === 0) throw new Error('CSV-tiedosto on tyhjä');
+
+        const firstRow = rows[0];
+        const missingCols = requiredColumns.filter(col => !(col in firstRow));
+        if (missingCols.length > 0) {
+            throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
+        }
+
+        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
+            const raw = String(value ?? '').trim();
+            if (raw === '') {
+                if (allowEmpty) return 0;
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
+            }
+            const parsed = Number(raw.replace(',', '.'));
+            if (!Number.isFinite(parsed)) {
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
+            }
+            return parsed;
+        };
+
+        const mapType = (rawType) => {
+            const type = String(rawType || '').trim().toLowerCase();
+            if (type === 'buy' || type === 'market buy' || type === 'stock buy') return 'BUY';
+            if (type === 'sell' || type === 'market sell' || type === 'stock sell') return 'SELL';
+            if (type.includes('dividend')) return 'DIVIDEND';
+            if (type.includes('interest')) return 'INTEREST';
+            return 'IGNORE';
+        };
+
+        const transactions = [];
+        for (let index = 0; index < rows.length; index++) {
+            const row = rows[index];
+            const rowNumber = index + 2;
+
+            try {
+                const dateRaw = String(row['date'] || '').trim();
+                const type = mapType(row['type']);
+                const symbol = sanitizeQuotedText(row['ticker']).toUpperCase() || 'CASH';
+                const symbolName = getSymbolNameFromRow(row);
+                const qty = parseNumberField(row['quantity'], 'quantity', rowNumber, true);
+                const priceEur = parseNumberField(row['price'], 'price', rowNumber, true);
+                const feeEur = decimalAbs(parseNumberField(row['fee'], 'fee', rowNumber, true));
+                const currency = String(row['currency'] || '').trim().toUpperCase();
+
+                if (!dateRaw) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "date" puuttuu`);
+                }
+
+                if (currency && currency !== 'EUR') {
+                    throw new Error(`Rivi ${rowNumber}: vain EUR-valuutta on tuettu Revolut-tuonnissa (löytyi "${currency}")`);
+                }
+
+                const date = parseDate(dateRaw);
+                if (type === 'IGNORE') {
+                    continue;
+                }
+
+                transactions.push({
+                    date,
+                    type,
+                    symbol,
+                    symbolName,
+                    qty: decimalAbs(qty),
+                    price_eur: decimalAbs(priceEur),
+                    fee_eur: feeEur
+                });
+            } catch (error) {
+                if (String(error?.message || '').startsWith('Rivi ')) {
+                    throw error;
+                }
+                throw new Error(`Rivi ${rowNumber}: ${error.message}`);
+            }
+        }
+
+        return transactions.sort((a, b) => a.date - b.date);
+    }
+
+    function parseInteractiveBrokers(rows) {
+        const requiredColumns = ['trade date', 'action', 'symbol', 'quantity', 'price', 'commission', 'currency'];
+        if (rows.length === 0) throw new Error('CSV-tiedosto on tyhjä');
+
+        const firstRow = rows[0];
+        const missingCols = requiredColumns.filter(col => !(col in firstRow));
+        if (missingCols.length > 0) {
+            throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
+        }
+
+        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
+            const raw = String(value ?? '').trim();
+            if (raw === '') {
+                if (allowEmpty) return 0;
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
+            }
+            const parsed = Number(raw.replace(',', '.'));
+            if (!Number.isFinite(parsed)) {
+                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
+            }
+            return parsed;
+        };
+
+        const mapType = (rawAction) => {
+            const action = String(rawAction || '').trim().toUpperCase();
+            if (action === 'BUY') return 'BUY';
+            if (action === 'SELL') return 'SELL';
+            if (action === 'DIVIDEND') return 'DIVIDEND';
+            if (action === 'INTEREST') return 'INTEREST';
+            return 'IGNORE';
+        };
+
+        const transactions = [];
+        for (let index = 0; index < rows.length; index++) {
+            const row = rows[index];
+            const rowNumber = index + 2;
+
+            try {
+                const dateRaw = String(row['trade date'] || '').trim();
+                const type = mapType(row['action']);
+                const symbol = sanitizeQuotedText(row['symbol']).toUpperCase() || 'CASH';
+                const symbolName = sanitizeQuotedText(row['description'] || row['symbol name'] || '');
+                const qty = parseNumberField(row['quantity'], 'quantity', rowNumber, true);
+                const priceEur = parseNumberField(row['price'], 'price', rowNumber, true);
+                const feeEur = decimalAbs(parseNumberField(row['commission'], 'commission', rowNumber, true));
+                const currency = String(row['currency'] || '').trim().toUpperCase();
+
+                if (!dateRaw) {
+                    throw new Error(`Rivi ${rowNumber}: kenttä "trade date" puuttuu`);
+                }
+
+                if (currency && currency !== 'EUR') {
+                    throw new Error(`Rivi ${rowNumber}: vain EUR-valuutta on tuettu Interactive Brokers -tuonnissa (löytyi "${currency}")`);
+                }
+
+                const date = parseDate(dateRaw);
+                if (type === 'IGNORE') {
+                    continue;
+                }
+
+                transactions.push({
+                    date,
+                    type,
+                    symbol,
+                    symbolName,
+                    qty: decimalAbs(qty),
+                    price_eur: decimalAbs(priceEur),
+                    fee_eur: feeEur
+                });
+            } catch (error) {
+                if (String(error?.message || '').startsWith('Rivi ')) {
+                    throw error;
+                }
+                throw new Error(`Rivi ${rowNumber}: ${error.message}`);
+            }
+        }
+
+        return transactions.sort((a, b) => a.date - b.date);
+    }
+
+    const IMPORT_FORMATS = {
+        trading212: {
+            requiredColumns: ['action', 'time', 'ticker', 'no. of shares', 'gross total', 'currency (gross total)', 'currency conversion fee'],
+            parser: parseTrading212
+        },
+        manual: {
+            requiredColumns: ['date', 'type', 'symbol', 'qty', 'price_eur', 'fee_eur'],
+            parser: parseManual
+        },
+        revolut: {
+            requiredColumns: ['date', 'type', 'ticker', 'quantity', 'price', 'fee', 'currency'],
+            parser: parseRevolut
+        },
+        ibkr: {
+            requiredColumns: ['trade date', 'action', 'symbol', 'quantity', 'price', 'commission', 'currency'],
+            parser: parseInteractiveBrokers
+        }
+    };
+
+    function parseTransactionsByFormat(format, rows) {
+        const normalizedFormat = String(format || '').trim().toLowerCase();
+        const definition = IMPORT_FORMATS[normalizedFormat];
+        if (!definition || typeof definition.parser !== 'function') {
+            throw new Error(`Tuntematon CSV-muoto: ${format}`);
+        }
+
+        return definition.parser(rows);
+    }
+
     function autoDetectFormat(rows) {
         if (rows.length === 0) throw new Error('CSV-tiedosto on tyhjä');
 
         const firstRow = rows[0];
         const columns = Object.keys(firstRow);
 
-        const trading212Required = ['action', 'time', 'ticker', 'no. of shares', 'gross total', 'currency (gross total)', 'currency conversion fee'];
-        const hasTrading212 = trading212Required.every(col => columns.includes(col));
-
-        const manualRequired = ['date', 'type', 'symbol', 'qty', 'price_eur', 'fee_eur'];
-        const hasManual = manualRequired.every(col => columns.includes(col));
-
-        if (hasTrading212) {
-            return 'trading212';
-        } else if (hasManual) {
-            return 'manual';
-        } else {
-            throw new Error(`CSV-muotoa ei tunnistettu. Löydetyt sarakkeet: ${columns.join(', ')}`);
+        const preferredOrder = ['trading212', 'manual', 'revolut', 'ibkr'];
+        for (const format of preferredOrder) {
+            const definition = IMPORT_FORMATS[format];
+            const hasAllColumns = definition.requiredColumns.every(col => columns.includes(col));
+            if (hasAllColumns) {
+                return format;
+            }
         }
+
+        throw new Error(`CSV-muotoa ei tunnistettu. Löydetyt sarakkeet: ${columns.join(', ')}`);
     }
 
     function parseManual(rows) {
@@ -785,6 +971,9 @@
         expandSaleRowsForReporting,
         parseCSV,
         parseTrading212,
+        parseRevolut,
+        parseInteractiveBrokers,
+        parseTransactionsByFormat,
         autoDetectFormat,
         parseManual,
         runInternalTests
@@ -812,6 +1001,9 @@
         expandSaleRowsForReporting,
         parseCSV,
         parseTrading212,
+        parseRevolut,
+        parseInteractiveBrokers,
+        parseTransactionsByFormat,
         autoDetectFormat,
         parseManual,
         runInternalTests

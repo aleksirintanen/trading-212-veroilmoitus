@@ -145,6 +145,18 @@ assertThrowsMessage(
   'parseManual should include row number in validation error'
 );
 
+const revolutRows = sandbox.parseCSV(
+  'Date,Type,Ticker,Quantity,Price,Fee,Currency\n' +
+  '2025-01-15,Buy,AAPL,10,150.00,1.00,EUR\n'
+);
+assert(sandbox.autoDetectFormat(revolutRows) === 'revolut', 'autoDetectFormat should detect Revolut format');
+
+const ibkrRows = sandbox.parseCSV(
+  'Trade Date,Action,Symbol,Quantity,Price,Commission,Currency\n' +
+  '2025-01-15,BUY,AAPL,10,150.00,1.00,EUR\n'
+);
+assert(sandbox.autoDetectFormat(ibkrRows) === 'ibkr', 'autoDetectFormat should detect IBKR format');
+
 const parsedDate = sandbox.parseDate('2025-03-20 14:22:59');
 assert(parsedDate.getFullYear() === 2025, 'parseDate year mismatch');
 assert(parsedDate.getMonth() === 2, 'parseDate month mismatch');
@@ -193,6 +205,9 @@ assert(typeof sandbox.exportDividendsCSV === 'function', 'Smoke test: exportDivi
 assert(typeof sandbox.exportInterestsCSV === 'function', 'Smoke test: exportInterestsCSV missing');
 assert(typeof sandbox.exportTaxSummaryPdf === 'function', 'Smoke test: exportTaxSummaryPdf missing');
 assert(typeof sandbox.exportAllAsZip === 'function', 'Smoke test: exportAllAsZip missing');
+assert(typeof sandbox.parseRevolut === 'function', 'Smoke test: parseRevolut missing');
+assert(typeof sandbox.parseInteractiveBrokers === 'function', 'Smoke test: parseInteractiveBrokers missing');
+assert(typeof sandbox.parseTransactionsByFormat === 'function', 'Smoke test: parseTransactionsByFormat missing');
 assert(typeof sandbox.toggleSales === 'function', 'Smoke test: toggleSales missing');
 assert(typeof sandbox.toggleFifoAudit === 'function', 'Smoke test: toggleFifoAudit missing');
 assert(typeof sandbox.toggleDividends === 'function', 'Smoke test: toggleDividends missing');

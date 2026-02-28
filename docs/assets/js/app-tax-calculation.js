@@ -5,9 +5,8 @@ const {
     FifoBook,
     estimateCapitalTax,
     parseCSV,
-    parseTrading212,
+    parseTransactionsByFormat,
     autoDetectFormat,
-    parseManual,
     formatCurrency,
     formatQuantity,
     getSaleCostUsed,
@@ -31,7 +30,7 @@ Dividend (AAPL),2025-03-20 00:00:00,AAPL,0,25.00,EUR,0.00<br>
 Market sell,2025-06-10 14:22:00,AAPL,5,800.00,EUR,0.00
             </div>
         `;
-    } else {
+    } else if (format === 'manual') {
         helpDiv.innerHTML = `
             <div class="help-text">Vaaditut sarakkeet: date, type, symbol, qty, price_eur, fee_eur</div>
             <div class="csv-sample">
@@ -40,6 +39,28 @@ date,type,symbol,qty,price_eur,fee_eur<br>
 2025-01-15,BUY,AAPL,10,150.00,5.00<br>
 2025-03-20,DIVIDEND,AAPL,0,2.50,0<br>
 2025-06-10,SELL,AAPL,5,160.00,5.00
+            </div>
+        `;
+    } else if (format === 'revolut') {
+        helpDiv.innerHTML = `
+            <div class="help-text">Vaaditut sarakkeet: Date, Type, Ticker, Quantity, Price, Fee, Currency</div>
+            <div class="csv-sample">
+                <strong>Esimerkki (Revolut):</strong><br>
+Date,Type,Ticker,Quantity,Price,Fee,Currency<br>
+2025-01-15,Buy,AAPL,10,150.00,1.00,EUR<br>
+2025-03-20,Dividend,AAPL,0,2.50,0.00,EUR<br>
+2025-06-10,Sell,AAPL,5,160.00,1.00,EUR
+            </div>
+        `;
+    } else if (format === 'ibkr') {
+        helpDiv.innerHTML = `
+            <div class="help-text">Vaaditut sarakkeet: Trade Date, Action, Symbol, Quantity, Price, Commission, Currency</div>
+            <div class="csv-sample">
+                <strong>Esimerkki (Interactive Brokers):</strong><br>
+Trade Date,Action,Symbol,Quantity,Price,Commission,Currency<br>
+2025-01-15,BUY,AAPL,10,150.00,1.00,EUR<br>
+2025-03-20,DIVIDEND,AAPL,0,2.50,0.00,EUR<br>
+2025-06-10,SELL,AAPL,5,160.00,1.00,EUR
             </div>
         `;
     }
@@ -148,12 +169,7 @@ function calculateTaxes() {
 
                 const { ruleYear: taxRuleYear, rules: taxRules } = resolveTaxRulesForYear(year);
 
-                let transactions;
-                if (format === 'trading212') {
-                    transactions = parseTrading212(rows);
-                } else {
-                    transactions = parseManual(rows);
-                }
+                const transactions = parseTransactionsByFormat(format, rows);
 
                 const book = new FifoBook(taxRules);
                 const sales = [];
