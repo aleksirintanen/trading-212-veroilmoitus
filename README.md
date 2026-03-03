@@ -37,21 +37,6 @@ Staattinen verkkosovellus Trading 212 -tapahtumien verolaskentaan (FIFO + hankin
 2. Avaa `docs/index.html` selaimessa tai Live Serverillä.
 3. Lataa CSV ja aja laskenta.
 
-## Frontend script load order
-
-`docs/index.html` lataa skriptit tässä järjestyksessä:
-
-1. `assets/js/core/core-engine.js`
-2. `assets/js/ui/preview-ui.js`
-3. `assets/js/ui/pdf-export.js`
-4. `assets/js/app-tax-calculation.js`
-5. `assets/js/app-exports.js`
-6. `assets/js/app-init.js`
-
-Periaate: `core/*` ensin, sitten `ui/*`, sitten sovelluslogiikka (`app-*`), ja lopuksi init.
-
-Miksi: `app-tax-calculation.js`, `app-exports.js` ja `app-init.js` käyttävät globaaleja rajapintoja (`window.AppCore`, `window.AppPreviewUi`, `window.AppPdfExport`), joten väärä latausjärjestys rikkoo riippuvuudet.
-
 ### Nopea sisäinen testaus
 
 Avaa selaimen devtools-konsoli ja aja:
@@ -70,26 +55,6 @@ Repossa on workflow `.github/workflows/ci-tests.yml`, joka ajaa testit:
 Paikallinen ajo (vaatii Node.js):
 
 `node tests/run-tests.mjs`
-
-## Playwright E2E-testit
-
-Projektissa on myös Playwright-end-to-end testit kansiossa `tests/e2e/`.
-
-Asennus:
-
-`npm install`
-
-Asenna Chromium Playwrightille:
-
-`npx playwright install chromium`
-
-Aja E2E-testit:
-
-`npm run test:e2e`
-
-Tarvittaessa ajettuna näkyvällä selaimella:
-
-`npm run test:e2e:headed`
 
 ## Dev Container (Docker)
 
@@ -121,7 +86,6 @@ Sovellus tulee näkyviin osoitteeseen:
 
 - `index.html` projektin juuressa on tarkoituksella redirect `docs/`-kansioon.
 - Varsinainen julkaistava sovellus on `docs/index.html` + `docs/assets/*`.
-- Verovuosikohtaiset verosäännöt (rajat/prosentit) löytyvät taulusta `TAX_RULES_BY_YEAR` tiedostossa `docs/assets/js/core/core-engine.js`.
 
 ## GitHub Actions deploy (automaattinen)
 

@@ -43,26 +43,14 @@
 
                 <div class="steps-guide">
                     <ol>
-                        <li class="info-line"><span class="info-label">Valitse verovuosi:</span> <span class="info-value">Syötä verovuosi ennen CSV-tiedoston käsittelyä.</span></li>
-                        <li class="info-line"><span class="info-label">Hae Trading 212 -tapahtumahistoria (CSV):</span> <span class="info-value">Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a></span></li>
-                        <li class="info-line"><span class="info-label">Lataa CSV laskuriin:</span> <span class="info-value">Valitse oikea CSV-muoto ja tiedosto.</span></li>
+                        <li class="info-line"><span class="info-label">Valitse CSV-muoto:</span> <span class="info-value">Valitse Trading 212, Revolut, IBKR tai manuaalinen muoto.</span></li>
+                        <li class="info-line"><span class="info-label">Hae valitun toimijan CSV ja lataa laskuriin:</span> <span class="info-value" id="providerFetchInline">Trading 212: History → Export to CSV. Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a></span></li>
+                        <li class="info-line"><span class="info-label">Valitse verovuosi:</span> <span class="info-value">Syötä verovuosi ennen laskentaa.</span></li>
                         <li class="info-line"><span class="info-label">Laske verot:</span> <span class="info-value">Täytä halutessasi valinnaiset 9A-kentät (nimi ja henkilötunnus).</span></li>
                     </ol>
                 </div>
 
-                <div class="step-block-title">1. Valitse verovuosi</div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="taxYear">Verovuosi</label>
-                        <input type="number" id="taxYear" value="2025" min="2000" max="2030">
-                    </div>
-                </div>
-
-                <div class="step-block-title">2. Hae Trading 212 -tapahtumahistoria (CSV)</div>
-                <div class="help-text">Voit käyttää yllä olevaa Trading 212 -ohjelinkkiä CSV-viennin tekemiseen.</div>
-
-                <div class="step-block-title">3. Lataa CSV laskuriin</div>
+                <div class="step-block-title">1. Valitse CSV-muoto</div>
 
                 <div class="form-group">
                     <label for="formatSelect">CSV-muoto</label>
@@ -72,13 +60,25 @@
                         <option value="revolut">Revolut</option>
                         <option value="ibkr">Interactive Brokers (IBKR)</option>
                     </select>
-                    <div class="help-text">Trading 212: lataa suoraan "History"-CSV. Manuaalinen: käytä omaa CSV-muotoa.</div>
+                    <div class="help-text">Valitse CSV-lähdettä vastaava muoto ennen tiedoston lataamista.</div>
                 </div>
+
+                <div class="step-block-title">2. Hae valitun toimijan CSV ja lataa laskuriin</div>
+                <div class="help-text" id="providerFetchHelp">Trading 212: avaa History-näkymä ja vie tapahtumat CSV:nä.</div>
 
                 <div class="form-group">
                     <label for="csvFile">Lataa CSV-tiedosto</label>
                     <input type="file" id="csvFile" accept=".csv">
                     <div id="formatHelp"></div>
+                </div>
+
+                <div class="step-block-title">3. Valitse verovuosi</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taxYear">Verovuosi</label>
+                        <input type="number" id="taxYear" value="2025" min="2000" max="2030">
+                    </div>
                 </div>
 
                 <div class="csv-preview-controls">
@@ -411,7 +411,7 @@
     <script src="assets/js/core/core-engine.js?v=20260227-1"></script>
     <script src="assets/js/ui/preview-ui.js?v=20260227-2"></script>
     <script src="assets/js/ui/pdf-export.js?v=20260227-4"></script>
-    <script src="assets/js/app-tax-calculation.js?v=20260228-1"></script>
+    <script src="assets/js/app-tax-calculation.js?v=20260228-2"></script>
     <script src="assets/js/app-exports.js?v=20260227-9"></script>
     <script src="assets/js/app-init.js?v=20260227-6"></script>
 </body>
