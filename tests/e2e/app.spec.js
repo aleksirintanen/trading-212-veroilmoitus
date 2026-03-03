@@ -8,15 +8,23 @@ test('etusivu aukeaa ja päätoiminnot näkyvät', async ({ page }) => {
   await expect(page.locator('#loadDemoButton')).toBeVisible();
 });
 
-test('overlay näkyy ensimmäisellä laskennalla ja laskenta jatkuu sen jälkeen', async ({ page }) => {
+test('ilman tiedostoa näytetään virhe eikä overlayia', async ({ page }) => {
   await page.goto('/');
 
   await page.locator('#calculateButton').click();
+  await expect(page.locator('#exportReminderOverlay')).not.toHaveClass(/show/);
+  await expect(page.locator('#errorMessage')).toContainText('Valitse CSV-tiedosto');
+});
+
+test('overlay näkyy ensimmäisellä laskennalla tiedoston kanssa ja laskenta jatkuu', async ({ page }) => {
+  await page.goto('/');
+
+  await page.locator('#loadDemoButton').click();
   await expect(page.locator('#exportReminderOverlay')).toHaveClass(/show/);
 
   await page.locator('#exportReminderContinueBtn').click();
   await expect(page.locator('#exportReminderOverlay')).not.toHaveClass(/show/);
-  await expect(page.locator('#errorMessage')).toContainText('Valitse CSV-tiedosto');
+  await expect(page.locator('#results')).toHaveClass(/show/);
 });
 
 test('demoaineisto lataa tulokset ja aktivoi exportteja', async ({ page }) => {

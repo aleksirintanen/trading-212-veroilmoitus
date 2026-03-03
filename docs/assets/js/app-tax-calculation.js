@@ -159,6 +159,14 @@ function showExportBehaviorReminderOnce() {
 }
 
 function calculateTaxes() {
+    const fileInput = document.getElementById('csvFile');
+    if (!fileInput.files.length) {
+        const errorElement = document.getElementById('errorMessage');
+        errorElement.textContent = 'Valitse CSV-tiedosto';
+        errorElement.classList.add('show');
+        return;
+    }
+
     if (!showExportBehaviorReminderOnce()) {
         return;
     }
@@ -169,11 +177,6 @@ function calculateTaxes() {
     setCalculatingState(true);
 
     try {
-        const fileInput = document.getElementById('csvFile');
-        if (!fileInput.files.length) {
-            throw new Error('Valitse CSV-tiedosto');
-        }
-
         const file = fileInput.files[0];
         const reader = new FileReader();
 
