@@ -185,6 +185,9 @@ function calculateTaxes() {
                 const csvText = e.target.result;
                 const rows = parseCSV(csvText);
                 const year = parseInt(document.getElementById('taxYear').value);
+                if (!Number.isFinite(year)) {
+                    throw new Error('Syötä kelvollinen verovuosi');
+                }
                 let format = document.getElementById('formatSelect').value;
 
                 const formatLabels = { trading212: 'Trading 212', revolut: 'Revolut', ibkr: 'Interactive Brokers (IBKR)', manual: 'Manuaalinen' };
@@ -577,7 +580,7 @@ function calculateTaxes() {
                         row.appendChild(dateCell);
 
                         const typeCell = document.createElement('td');
-                        typeCell.textContent = 'Interest on cash';
+                        typeCell.textContent = 'Korkotulo';
                         row.appendChild(typeCell);
 
                         const amountCell = document.createElement('td');

@@ -64,6 +64,8 @@ function restoreSavedSelections() {
     const savedYear = getLocalStorageValue(TAX_YEAR_STORAGE_KEY);
     if (taxYearInput && savedYear && /^\d{4}$/.test(savedYear)) {
         taxYearInput.value = savedYear;
+    } else if (taxYearInput) {
+        taxYearInput.value = String(new Date().getFullYear() - 1);
     }
 
     const savedFormat = getLocalStorageValue(FORMAT_STORAGE_KEY);

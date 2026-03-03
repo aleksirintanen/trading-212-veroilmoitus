@@ -259,7 +259,7 @@ function buildInterestsCsvContent() {
     for (const row of rows) {
         csv += [
             row.date.toLocaleDateString('fi-FI'),
-            'Interest on cash',
+            'Korkotulo',
             formatNumber(row.amount).replace(',', '.')
         ].join(',') + '\n';
     }
