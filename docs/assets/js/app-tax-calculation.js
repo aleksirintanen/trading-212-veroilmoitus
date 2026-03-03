@@ -265,20 +265,22 @@ function calculateTaxes() {
                             continue;
                         }
 
+                        let effectiveQty = qty;
                         if (availableQty + 1e-12 < qty) {
-                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: myyntimäärä (${formatQuantity(qty)}) ylittää omistuksen (${formatQuantity(availableQty)}), rivi ohitettu`);
-                            continue;
+                            pushWarning(`${d.toLocaleDateString('fi-FI')} ${symbol}: myyntimäärä (${formatQuantity(qty)}) ylittää omistuksen (${formatQuantity(availableQty)}), myydään osittain saatavilla oleva määrä (${formatQuantity(availableQty)})`);
+                            effectiveQty = availableQty;
                         }
 
+                        const qtyScale = effectiveQty / qty;
                         let proceedsEur, feesEur;
                         if (format === 'trading212') {
-                            proceedsEur = transaction.gross_total_eur;
-                            feesEur = transaction.fx_fee_eur;
+                            proceedsEur = transaction.gross_total_eur * qtyScale;
+                            feesEur = transaction.fx_fee_eur * qtyScale;
                         } else {
-                            proceedsEur = qty * transaction.price_eur;
-                            feesEur = transaction.fee_eur;
+                            proceedsEur = effectiveQty * transaction.price_eur;
+                            feesEur = transaction.fee_eur * qtyScale;
                         }
-                        const res = book.sell(symbol, symbolNames[symbol] || '', d, qty, proceedsEur, feesEur);
+                        const res = book.sell(symbol, symbolNames[symbol] || '', d, effectiveQty, proceedsEur, feesEur);
                         if (d.getFullYear() === year) {
                             sales.push(res);
                         }
