@@ -234,6 +234,61 @@ assert(Math.abs(estimatedTax - expectedTax) < 1e-9, 'estimateCapitalTax mismatch
     `Deemed cost per-lot test failed: got ${mixedSale.deemedCostEur}, expected ${expectedDeemedCost}`);
 }
 
+// ── Test-data CSV files: parsing and validation ──────────────────────────────
+
+// Clean datasets: verify exact transaction counts
+{
+  const csv = fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_tapahtumat_manual.csv'), 'utf8');
+  const txns = sandbox.parseManual(sandbox.parseCSV(csv));
+  assert(txns.length === 12, `dummy_tapahtumat_manual.csv: expected 12 transactions, got ${txns.length}`);
+}
+
+{
+  const csv = fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_tapahtumat_t212.csv'), 'utf8');
+  const txns = sandbox.parseTrading212(sandbox.parseCSV(csv));
+  assert(txns.length === 17, `dummy_tapahtumat_t212.csv: expected 17 transactions, got ${txns.length}`);
+}
+
+// Warning-scenario dataset: parses cleanly at parser level (sell-before-buy and partial-sell
+// produce warnings only at the calculateTaxes level, not during parsing)
+{
+  const csv = fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_varoitukset_manual.csv'), 'utf8');
+  const txns = sandbox.parseManual(sandbox.parseCSV(csv));
+  assert(txns.length === 5, `dummy_varoitukset_manual.csv: expected 5 transactions, got ${txns.length}`);
+}
+
+// Stress datasets: parse without throwing and produce large transaction counts
+{
+  const csv = fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_stress_manual_22_symbols.csv'), 'utf8');
+  const txns = sandbox.parseManual(sandbox.parseCSV(csv));
+  assert(txns.length > 1000, `dummy_stress_manual_22_symbols.csv: expected >1000 transactions, got ${txns.length}`);
+}
+
+{
+  const csv = fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_stress_warnings_manual_22_symbols.csv'), 'utf8');
+  const txns = sandbox.parseManual(sandbox.parseCSV(csv));
+  assert(txns.length > 500, `dummy_stress_warnings_manual_22_symbols.csv: expected >500 transactions, got ${txns.length}`);
+}
+
+// Invalid datasets: parsing must throw with a Finnish "Rivi N:" error message
+assertThrowsMessage(
+  () => sandbox.parseManual(sandbox.parseCSV(
+    fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_virheellinen_manual.csv'), 'utf8')
+  )),
+  'Rivi',
+  'dummy_virheellinen_manual.csv should throw a "Rivi N:" error for invalid date'
+);
+
+assertThrowsMessage(
+  () => sandbox.parseTrading212(sandbox.parseCSV(
+    fs.readFileSync(path.resolve(process.cwd(), 'test-data/csv/dummy_virheellinen_t212.csv'), 'utf8')
+  )),
+  'Rivi',
+  'dummy_virheellinen_t212.csv should throw a "Rivi N:" error for invalid date'
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const smokeScripts = [
   'docs/assets/js/core/core-engine.js',
   'docs/assets/js/ui/preview-ui.js',
@@ -269,6 +324,69 @@ assert(typeof sandbox.toggleInterests === 'function', 'Smoke test: toggleInteres
 assert(typeof sandbox.initializeTrading212App === 'function', 'Smoke test: initializeTrading212App missing');
 assert(typeof sandbox.loadDemoData === 'function', 'Smoke test: loadDemoData missing');
 assert(typeof sandbox.exitDemoMode === 'function', 'Smoke test: exitDemoMode missing');
+assert(typeof sandbox.AppExports === 'object', 'Smoke test: AppExports missing');
+assert(typeof sandbox.AppExports.buildSalesCsvContent === 'function', 'Smoke test: AppExports.buildSalesCsvContent missing');
+assert(typeof sandbox.AppExports.buildFifoAuditCsvContent === 'function', 'Smoke test: AppExports.buildFifoAuditCsvContent missing');
+assert(typeof sandbox.AppExports.buildDividendsCsvContent === 'function', 'Smoke test: AppExports.buildDividendsCsvContent missing');
+assert(typeof sandbox.AppExports.buildInterestsCsvContent === 'function', 'Smoke test: AppExports.buildInterestsCsvContent missing');
+
+// ── resolveTaxRulesForYear: fallback year triggers the calculateTaxes warning ─
+{
+  const { ruleYear: fallbackYear } = sandbox.resolveTaxRulesForYear(2099);
+  assert(fallbackYear !== 2099,
+    'resolveTaxRulesForYear for unknown year should return a different ruleYear (triggering year-fallback warning in calculateTaxes)');
+}
+
+// ── Export CSV builders: content validation ───────────────────────────────────
+{
+  // Build real SaleResult objects via FifoBook so expandSaleRowsForReporting works correctly
+  const exportBook = new sandbox.FifoBook(sandbox.getTaxRulesForYear(2025));
+  exportBook.buy('AAPL', new Date('2020-03-01'), 10, 1500, 5);
+  const exportSale = exportBook.sell('AAPL', 'Apple Inc', new Date('2025-06-01'), 5, 900, 3);
+  const exportReportRows = sandbox.expandSaleRowsForReporting([exportSale]);
+
+  sandbox.lastResults = {
+    year: 2025,
+    sales: [exportSale],
+    dividends: [{ date: new Date('2025-03-15'), symbol: 'AAPL', symbolName: 'Apple Inc', amount: 12.5 }],
+    interests: [{ date: new Date('2025-04-01'), amount: 2.35 }],
+    fifoAuditRows: exportReportRows
+  };
+
+  // buildSalesCsvContent
+  const salesCsv = sandbox.AppExports.buildSalesCsvContent();
+  assert(typeof salesCsv === 'string', 'buildSalesCsvContent should return a string');
+  assert(salesCsv.includes('Luovutettu arvopaperi'), 'Sales CSV should include Finnish header');
+  assert(salesCsv.includes('AAPL'), 'Sales CSV should include the symbol');
+
+  // buildFifoAuditCsvContent
+  const fifoAuditCsv = sandbox.AppExports.buildFifoAuditCsvContent();
+  assert(typeof fifoAuditCsv === 'string', 'buildFifoAuditCsvContent should return a string');
+  assert(fifoAuditCsv.includes('Myynti pvm'), 'FIFO audit CSV should include Finnish header');
+  assert(fifoAuditCsv.includes('AAPL'), 'FIFO audit CSV should include the symbol');
+
+  // buildDividendsCsvContent
+  const dividendsCsv = sandbox.AppExports.buildDividendsCsvContent();
+  assert(typeof dividendsCsv === 'string', 'buildDividendsCsvContent should return a string');
+  assert(dividendsCsv.includes('Päivä'), 'Dividends CSV should include Finnish header');
+  assert(dividendsCsv.includes('AAPL'), 'Dividends CSV should include the symbol');
+
+  // buildInterestsCsvContent
+  const interestsCsv = sandbox.AppExports.buildInterestsCsvContent();
+  assert(typeof interestsCsv === 'string', 'buildInterestsCsvContent should return a string');
+  assert(interestsCsv.includes('Päivä'), 'Interests CSV should include Finnish header');
+  assert(interestsCsv.includes('Korkotulo'), 'Interests CSV should include Finnish label');
+
+  // null returns when no results
+  const savedResults = sandbox.lastResults;
+  sandbox.lastResults = null;
+  assert(sandbox.AppExports.buildSalesCsvContent() === null, 'buildSalesCsvContent should return null when lastResults is null');
+  assert(sandbox.AppExports.buildDividendsCsvContent() === null, 'buildDividendsCsvContent should return null when lastResults is null');
+  assert(sandbox.AppExports.buildInterestsCsvContent() === null, 'buildInterestsCsvContent should return null when lastResults is null');
+  sandbox.lastResults = savedResults;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 sandbox.initializeTrading212App();
 

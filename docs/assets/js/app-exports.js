@@ -368,6 +368,13 @@ window.export9APdf = export9APdf;
 window.exportTaxSummaryPdf = exportTaxSummaryPdf;
 window.exportAllAsZip = exportAllAsZip;
 
+window.AppExports = {
+    buildSalesCsvContent,
+    buildFifoAuditCsvContent,
+    buildDividendsCsvContent,
+    buildInterestsCsvContent
+};
+
 if (typeof document !== 'undefined') {
     restoreSectionVisibilityState();
     refreshToggleButtonsState();

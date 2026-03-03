@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const path = require('path');
 
 test('etusivu aukeaa ja päätoiminnot näkyvät', async ({ page }) => {
   await page.goto('/');
@@ -57,6 +58,34 @@ test('demo laskenta tuottaa oikeat summat', async ({ page }) => {
 
   // Sales table should have 13 rows (one per sale in tax year 2025)
   await expect(page.locator('#salesTable tbody tr')).toHaveCount(13);
+});
+
+test('varoitukset-tiedosto tuottaa varoitusboxin tuloksiin', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('t212_export_behavior_notice_shown', '1');
+  });
+  await page.goto('/');
+  await page.locator('#formatSelect').selectOption('manual');
+  await page.locator('#csvFile').setInputFiles(
+    path.resolve(__dirname, '../../test-data/csv/dummy_varoitukset_manual.csv')
+  );
+  await page.locator('#calculateButton').click();
+  await expect(page.locator('#results')).toHaveClass(/show/);
+  await expect(page.locator('#dataWarningsBox')).toHaveClass(/show/);
+});
+
+test('virheellinen CSV näyttää virheilmoituksen laskennassa', async ({ page }) => {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('t212_export_behavior_notice_shown', '1');
+  });
+  await page.goto('/');
+  await page.locator('#formatSelect').selectOption('manual');
+  await page.locator('#csvFile').setInputFiles(
+    path.resolve(__dirname, '../../test-data/csv/dummy_virheellinen_manual.csv')
+  );
+  await page.locator('#calculateButton').click();
+  await expect(page.locator('#errorMessage')).toContainText('Virhe:');
+  await expect(page.locator('#results')).not.toHaveClass(/show/);
 });
 
 test('osiot avautuvat näytä/piilota napeista', async ({ page }) => {
