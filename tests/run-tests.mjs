@@ -157,6 +157,44 @@ const ibkrRows = sandbox.parseCSV(
 );
 assert(sandbox.autoDetectFormat(ibkrRows) === 'ibkr', 'autoDetectFormat should detect IBKR format');
 
+// Stock split detection in all three broker parsers
+{
+  const t212Split = sandbox.parseTrading212(sandbox.parseCSV(
+    'Action,Time,Ticker,No. of shares,Gross Total,Currency (Gross Total),Currency conversion fee\n' +
+    'Stock split,2021-07-20 00:00:00,AAPL,4,0.00,EUR,0.00\n'
+  ));
+  assert(t212Split.length === 1, 'T212: stock split row should produce 1 transaction');
+  assert(t212Split[0].type === 'SPLIT', `T212: stock split type should be SPLIT, got ${t212Split[0].type}`);
+  assert(t212Split[0].qty === 4, `T212: stock split ratio should be 4, got ${t212Split[0].qty}`);
+
+  const revSplit = sandbox.parseRevolut(sandbox.parseCSV(
+    'Date,Type,Ticker,Quantity,Price,Fee,Currency\n' +
+    '2021-07-20,STOCK_SPLIT,AAPL,4,0.00,0.00,EUR\n'
+  ));
+  assert(revSplit.length === 1, 'Revolut: stock split row should produce 1 transaction');
+  assert(revSplit[0].type === 'SPLIT', `Revolut: stock split type should be SPLIT, got ${revSplit[0].type}`);
+
+  const ibkrSplit = sandbox.parseInteractiveBrokers(sandbox.parseCSV(
+    'Trade Date,Action,Symbol,Quantity,Price,Commission,Currency\n' +
+    '2021-07-20,SPLIT,AAPL,4,0.00,0.00,EUR\n'
+  ));
+  assert(ibkrSplit.length === 1, 'IBKR: stock split row should produce 1 transaction');
+  assert(ibkrSplit[0].type === 'SPLIT', `IBKR: stock split type should be SPLIT, got ${ibkrSplit[0].type}`);
+}
+
+// FifoBook.applySplit adjusts lot qty and preserves cost basis
+{
+  const bookSplit = new sandbox.FifoBook(sandbox.getTaxRulesForYear(2025));
+  bookSplit.buy('AAPL', new Date('2020-01-01'), 10, 1000, 0);
+  bookSplit.applySplit('AAPL', 4);
+  const lots = bookSplit.getLots('AAPL');
+  assert(Math.abs(lots[0].qty - 40) < 1e-9, `After 4:1 split, lot qty should be 40, got ${lots[0].qty}`);
+  assert(Math.abs(lots[0].purchaseTotal - 1000) < 1e-9, 'Cost basis should be unchanged after split');
+  const splitSale = bookSplit.sell('AAPL', 'Apple', new Date('2025-01-01'), 40, 2000, 0);
+  assert(Math.abs(splitSale.acquisitionPriceEur - 1000) < 1e-9,
+    `Acquisition price after split sale should be 1000, got ${splitSale.acquisitionPriceEur}`);
+}
+
 const parsedDate = sandbox.parseDate('2025-03-20 14:22:59');
 assert(parsedDate.getFullYear() === 2025, 'parseDate year mismatch');
 assert(parsedDate.getMonth() === 2, 'parseDate month mismatch');

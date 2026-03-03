@@ -600,6 +600,8 @@
                     type = 'INTEREST';
                 } else if (action.includes('dividend')) {
                     type = 'DIVIDEND';
+                } else if (action.includes('split')) {
+                    type = 'SPLIT';
                 }
 
                 if (type !== 'IGNORE') {
@@ -653,6 +655,7 @@
             if (type === 'sell' || type === 'market sell' || type === 'stock sell') return 'SELL';
             if (type.includes('dividend')) return 'DIVIDEND';
             if (type.includes('interest')) return 'INTEREST';
+            if (type.includes('split')) return 'SPLIT';
             return 'IGNORE';
         };
 
@@ -733,6 +736,7 @@
             if (action === 'SELL') return 'SELL';
             if (action === 'DIVIDEND') return 'DIVIDEND';
             if (action === 'INTEREST') return 'INTEREST';
+            if (action.includes('SPLIT')) return 'SPLIT';
             return 'IGNORE';
         };
 

@@ -283,10 +283,7 @@ function calculateTaxes() {
                             sales.push(res);
                         }
 
-                    } else if (type === 'SPLIT' && format === 'manual') {
-                        book.applySplit(symbol, qty);
-
-                    } else if (type === 'REVERSE_SPLIT' && format === 'manual') {
+                    } else if (type === 'SPLIT' || type === 'REVERSE_SPLIT') {
                         book.applySplit(symbol, qty);
 
                     } else if (type === 'DIVIDEND') {
