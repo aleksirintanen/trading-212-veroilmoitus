@@ -180,6 +180,22 @@ const expectedTax = 30000 * 0.30 + 10000 * 0.34;
 const estimatedTax = sandbox.estimateCapitalTax(40000, rules2025);
 assert(Math.abs(estimatedTax - expectedTax) < 1e-9, 'estimateCapitalTax mismatch with explicit rules');
 
+// Deemed cost per-lot test: one lot held >10 years (40% rate), one held <10 years (20% rate).
+// With 2 equal-qty lots and proceeds=200, correct deemed cost = 40% * 100 + 20% * 100 = 60.
+// The old buggy code used the minimum holding period across all lots, giving 20% * 200 = 40.
+{
+  const bookMixed = new sandbox.FifoBook(sandbox.getTaxRulesForYear(2025));
+  const oldLotDate = new Date('2014-01-01');   // >10 years before sale → 40% rate
+  const newLotDate = new Date('2024-01-01');   // <10 years before sale → 20% rate
+  const mixedSaleDate = new Date('2025-01-15');
+  bookMixed.buy('TEST', oldLotDate, 1.0, 50.0, 0.0);
+  bookMixed.buy('TEST', newLotDate, 1.0, 50.0, 0.0);
+  const mixedSale = bookMixed.sell('TEST', 'Test', mixedSaleDate, 2.0, 200.0, 0.0);
+  const expectedDeemedCost = 0.40 * 100 + 0.20 * 100; // 60
+  assert(Math.abs(mixedSale.deemedCostEur - expectedDeemedCost) < 1e-9,
+    `Deemed cost per-lot test failed: got ${mixedSale.deemedCostEur}, expected ${expectedDeemedCost}`);
+}
+
 const smokeScripts = [
   'docs/assets/js/core/core-engine.js',
   'docs/assets/js/ui/preview-ui.js',

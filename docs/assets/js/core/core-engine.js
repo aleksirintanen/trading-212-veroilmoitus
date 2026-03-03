@@ -188,13 +188,17 @@
 
             const proceeds = proceedsEur;
 
-            const holdingDaysMin = Math.min(...lotsUsed.map(([acq]) =>
-                Math.floor((date - acq) / (1000 * 60 * 60 * 24))
-            ));
-            const deemedRate = holdingDaysMin >= 3650
-                ? this.taxRules.deemedCost10YOrMore
-                : this.taxRules.deemedCostUnder10Y;
-            const deemedCost = decimalMul(proceeds, deemedRate);
+            let deemedCost = 0;
+            for (const lotEntry of lotsUsed) {
+                const holdingDays = Math.floor((date - lotEntry[0]) / (1000 * 60 * 60 * 24));
+                const lotDeemedRate = holdingDays >= 3650
+                    ? this.taxRules.deemedCost10YOrMore
+                    : this.taxRules.deemedCostUnder10Y;
+                const lotProceeds = decimalMul(proceeds, decimalDiv(lotEntry[1], qty));
+                const lotDeemedCost = decimalMul(lotProceeds, lotDeemedRate);
+                lotEntry.push(lotDeemedCost);
+                deemedCost = decimalAdd(deemedCost, lotDeemedCost);
+            }
             const actualCost = decimalAdd(actualPurchaseCost, actualAcquisitionFees);
 
             const gainActual = decimalSub(decimalSub(proceeds, actualCost), feeEur);
@@ -378,11 +382,11 @@
             }
 
             for (const lot of lots) {
-                const [acquiredDate, lotQty, purchasePiece, acquisitionFeePiece, _totalCostPiece, lotOriginalQty, lotQtyBeforeSale, lotQtyAfterSale] = lot;
+                const [acquiredDate, lotQty, purchasePiece, acquisitionFeePiece, _totalCostPiece, lotOriginalQty, lotQtyBeforeSale, lotQtyAfterSale, lotDeemedCostEur] = lot;
                 const weight = hasQty ? decimalDiv(lotQty, totalQty) : 0;
                 const proceedsPiece = decimalMul(sale.proceedsEur, weight);
                 const sellFeesPiece = decimalMul(sale.sellFeesEur, weight);
-                const deemedCostPiece = decimalMul(sale.deemedCostEur, weight);
+                const deemedCostPiece = lotDeemedCostEur != null ? lotDeemedCostEur : decimalMul(sale.deemedCostEur, weight);
                 const gainPiece = sale.methodUsed === 'DEEMED'
                     ? decimalSub(proceedsPiece, deemedCostPiece)
                     : decimalSub(decimalSub(decimalSub(proceedsPiece, purchasePiece), acquisitionFeePiece), sellFeesPiece);
