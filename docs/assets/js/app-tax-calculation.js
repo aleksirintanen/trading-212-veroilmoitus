@@ -18,8 +18,23 @@ const {
 function updateFormatHelp() {
     const format = document.getElementById('formatSelect').value;
     const helpDiv = document.getElementById('formatHelp');
+    const providerFetchInline = document.getElementById('providerFetchInline');
+    const providerFetchHelp = document.getElementById('providerFetchHelp');
+
+    const setProviderHelp = (inlineHtml, blockText) => {
+        if (providerFetchInline) {
+            providerFetchInline.innerHTML = inlineHtml;
+        }
+        if (providerFetchHelp) {
+            providerFetchHelp.textContent = blockText;
+        }
+    };
 
     if (format === 'trading212') {
+        setProviderHelp(
+            'Trading 212: History → Export to CSV. Tarvittaessa ohje: <a href="https://helpcentre.trading212.com/hc/en-us/articles/360016898917-Can-I-export-the-trading-data-from-my-account" target="_blank" rel="noopener noreferrer">Can I export the trading data from my account?</a>',
+            'Trading 212: avaa History-näkymä ja vie tapahtumat CSV:nä.'
+        );
         helpDiv.innerHTML = `
             <div class="help-text">Vaaditut sarakkeet: Action, Time, Ticker, No. of shares, Gross Total, Currency (Gross Total), Currency conversion fee</div>
             <div class="csv-sample">
@@ -31,6 +46,10 @@ Market sell,2025-06-10 14:22:00,AAPL,5,800.00,EUR,0.00
             </div>
         `;
     } else if (format === 'manual') {
+        setProviderHelp(
+            'Manuaalinen: kokoa CSV itse vaadituilla sarakkeilla (katso mallirivit alta).',
+            'Manuaalinen muoto: käytä omaa CSV:täsi ja varmista, että sarakeotsikot vastaavat vaadittua mallia.'
+        );
         helpDiv.innerHTML = `
             <div class="help-text">Vaaditut sarakkeet: date, type, symbol, qty, price_eur, fee_eur</div>
             <div class="csv-sample">
@@ -42,6 +61,10 @@ date,type,symbol,qty,price_eur,fee_eur<br>
             </div>
         `;
     } else if (format === 'revolut') {
+        setProviderHelp(
+            'Revolut: vie osake-/sijoitustapahtumat CSV-muodossa Revolutista ja lataa tiedosto tähän.',
+            'Revolut: vie osake- tai sijoitustapahtumat CSV:nä Revolutista ja lataa tiedosto tähän.'
+        );
         helpDiv.innerHTML = `
             <div class="help-text">Vaaditut sarakkeet: Date, Type, Ticker, Quantity, Price, Fee, Currency</div>
             <div class="csv-sample">
@@ -53,6 +76,10 @@ Date,Type,Ticker,Quantity,Price,Fee,Currency<br>
             </div>
         `;
     } else if (format === 'ibkr') {
+        setProviderHelp(
+            'IBKR: vie Trade/Activity-raportti CSV-muodossa Interactive Brokersista ja lataa tiedosto tähän.',
+            'Interactive Brokers (IBKR): vie Trade/Activity-raportti CSV:nä ja lataa tiedosto tähän.'
+        );
         helpDiv.innerHTML = `
             <div class="help-text">Vaaditut sarakkeet: Trade Date, Action, Symbol, Quantity, Price, Commission, Currency</div>
             <div class="csv-sample">
@@ -447,7 +474,7 @@ function calculateTaxes() {
                         const cells = [
                             rowData.soldDate.toLocaleDateString('fi-FI'),
                             formatSaleInstrumentDisplay(rowData),
-                            formatQuantity(rowData.qty),
+                            formatQuantity(rowData.saleTotalQty ?? rowData.qty),
                             rowData.acquiredDate.toLocaleDateString('fi-FI'),
                             formatQuantity(rowData.qty),
                             formatQuantity(rowData.lotOriginalQty),

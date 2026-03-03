@@ -395,6 +395,7 @@
                     symbol: sale.symbol,
                     symbolName: sale.symbolName,
                     qty: lotQty,
+                    saleTotalQty: totalQty,
                     acquiredDate: acquiredDate,
                     soldDate: sale.soldDate,
                     proceedsEur: proceedsPiece,
