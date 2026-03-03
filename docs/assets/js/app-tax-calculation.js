@@ -202,6 +202,11 @@ function calculateTaxes() {
                 const sales = [];
                 const symbolNames = {};
                 const dataWarnings = [];
+
+                if (taxRuleYear !== year) {
+                    dataWarnings.push(`Verovuodelle ${year} ei ole määriteltyjä verosääntöjä — laskennassa käytetään vuoden ${taxRuleYear} sääntöjä. Tarkista, että tulokset ovat oikeelliset.`);
+                }
+
                 const dividendRows = [];
                 const interestRows = [];
 
