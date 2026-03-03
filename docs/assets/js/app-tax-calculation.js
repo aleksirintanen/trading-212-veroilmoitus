@@ -187,14 +187,19 @@ function calculateTaxes() {
                 const year = parseInt(document.getElementById('taxYear').value);
                 let format = document.getElementById('formatSelect').value;
 
+                const formatLabels = { trading212: 'Trading 212', revolut: 'Revolut', ibkr: 'Interactive Brokers (IBKR)', manual: 'Manuaalinen' };
+                let formatOverrideWarning = null;
                 try {
                     const detectedFormat = autoDetectFormat(rows);
                     if (format !== detectedFormat && detectedFormat !== null) {
-                        console.log(`Auto-detected format: ${detectedFormat}, using that instead of selected: ${format}`);
+                        const detectedLabel = formatLabels[detectedFormat] || detectedFormat;
+                        const selectedLabel = formatLabels[format] || format;
+                        formatOverrideWarning = `CSV-muoto tunnistettu automaattisesti: "${detectedLabel}" (valittu oli "${selectedLabel}"). Muoto vaihdettu automaattisesti.`;
                         format = detectedFormat;
                         document.getElementById('formatSelect').value = format;
                     }
                 } catch (e) {
+                    console.warn('autoDetectFormat error:', e);
                 }
 
                 const { ruleYear: taxRuleYear, rules: taxRules } = resolveTaxRulesForYear(year);
@@ -205,6 +210,10 @@ function calculateTaxes() {
                 const sales = [];
                 const symbolNames = {};
                 const dataWarnings = [];
+
+                if (formatOverrideWarning) {
+                    dataWarnings.push(formatOverrideWarning);
+                }
 
                 if (taxRuleYear !== year) {
                     dataWarnings.push(`Verovuodelle ${year} ei ole määriteltyjä verosääntöjä — laskennassa käytetään vuoden ${taxRuleYear} sääntöjä. Tarkista, että tulokset ovat oikeelliset.`);
