@@ -33,6 +33,24 @@ test('demoaineisto lataa tulokset ja aktivoi exportteja', async ({ page }) => {
   await expect(page.locator('#exportSalesCsvButton')).toBeEnabled();
 });
 
+test('demo laskenta tuottaa oikeat summat', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#loadDemoButton').click();
+  await page.locator('#exportReminderContinueBtn').click();
+  await expect(page.locator('#results')).toHaveClass(/show/);
+
+  await expect(page.locator('#totalGains')).toHaveText('629,59 €');
+  await expect(page.locator('#totalLosses')).toHaveText('−205,99 €');
+  await expect(page.locator('#netGains')).toHaveText('423,61 €');
+  await expect(page.locator('#dividendGross')).toHaveText('4,74 €');
+  await expect(page.locator('#interestIncome')).toHaveText('1,35 €');
+  await expect(page.locator('#netCapitalIncome')).toHaveText('428,99 €');
+  await expect(page.locator('#estimatedTax')).toHaveText('128,70 €');
+
+  // Sales table should have 13 rows (one per sale in tax year 2025)
+  await expect(page.locator('#salesTable tbody tr')).toHaveCount(13);
+});
+
 test('osiot avautuvat näytä/piilota napeista', async ({ page }) => {
   await page.goto('/');
   await page.locator('#loadDemoButton').click();
