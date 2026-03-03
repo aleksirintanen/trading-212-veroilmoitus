@@ -541,6 +541,19 @@
         return rows;
     }
 
+    function parseNumberField(value, fieldName, rowNumber, allowEmpty = true) {
+        const raw = String(value ?? '').trim();
+        if (raw === '') {
+            if (allowEmpty) return 0;
+            throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
+        }
+        const parsed = Number(raw.replace(',', '.'));
+        if (!Number.isFinite(parsed)) {
+            throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
+        }
+        return parsed;
+    }
+
     function parseTrading212(rows) {
         const requiredColumns = ['action', 'time', 'ticker', 'no. of shares', 'gross total', 'currency (gross total)', 'currency conversion fee'];
         if (rows.length === 0) throw new Error('CSV-tiedosto on tyhjä');
@@ -555,18 +568,6 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
-            const raw = String(value ?? '').trim();
-            if (raw === '') {
-                if (allowEmpty) return 0;
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
-            }
-            const parsed = Number(raw.replace(',', '.'));
-            if (!Number.isFinite(parsed)) {
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
-            }
-            return parsed;
-        };
 
         const transactions = [];
         for (let index = 0; index < rows.length; index++) {
@@ -636,18 +637,6 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
-            const raw = String(value ?? '').trim();
-            if (raw === '') {
-                if (allowEmpty) return 0;
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
-            }
-            const parsed = Number(raw.replace(',', '.'));
-            if (!Number.isFinite(parsed)) {
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
-            }
-            return parsed;
-        };
 
         const mapType = (rawType) => {
             const type = String(rawType || '').trim().toLowerCase();
@@ -717,18 +706,6 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
-            const raw = String(value ?? '').trim();
-            if (raw === '') {
-                if (allowEmpty) return 0;
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
-            }
-            const parsed = Number(raw.replace(',', '.'));
-            if (!Number.isFinite(parsed)) {
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
-            }
-            return parsed;
-        };
 
         const mapType = (rawAction) => {
             const action = String(rawAction || '').trim().toUpperCase();
@@ -849,18 +826,6 @@
             throw new Error(`Sarakkeet puuttuvat CSV:stä: ${missingCols.join(', ')}`);
         }
 
-        const parseNumberField = (value, fieldName, rowNumber, allowEmpty = true) => {
-            const raw = String(value ?? '').trim();
-            if (raw === '') {
-                if (allowEmpty) return 0;
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" puuttuu`);
-            }
-            const parsed = Number(raw.replace(',', '.'));
-            if (!Number.isFinite(parsed)) {
-                throw new Error(`Rivi ${rowNumber}: kenttä "${fieldName}" ei ole numero (arvo: "${raw}")`);
-            }
-            return parsed;
-        };
 
         const allowedTypes = new Set(['BUY', 'SELL', 'DIVIDEND', 'INTEREST', 'SPLIT', 'REVERSE_SPLIT', 'CUSTODY_FEE', 'FEE', 'CASHBACK']);
         const transactions = [];
