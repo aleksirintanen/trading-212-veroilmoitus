@@ -298,6 +298,11 @@ function initializeTrading212App() {
     if (carryForwardInput && typeof carryForwardInput.addEventListener === 'function') {
         carryForwardInput.addEventListener('change', () => {
             setLocalStorageValue(CARRY_FORWARD_STORAGE_KEY, carryForwardInput.value);
+            const resultsEl = document.getElementById('results');
+            if (resultsEl?.classList?.contains('show') && typeof calculateTaxes === 'function') {
+                window.__skipExportBehaviorNoticeOnce = true;
+                calculateTaxes();
+            }
         });
     }
 
