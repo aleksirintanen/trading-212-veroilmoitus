@@ -39,6 +39,7 @@ function validateRequiredModules() {
 
 const TAX_YEAR_STORAGE_KEY = 't212_tax_year_v1';
 const FORMAT_STORAGE_KEY = 't212_format_v1';
+const CARRY_FORWARD_STORAGE_KEY = 't212_carry_forward_v1';
 
 function setLocalStorageValue(key, value) {
     try {
@@ -71,6 +72,15 @@ function restoreSavedSelections() {
     const savedFormat = getLocalStorageValue(FORMAT_STORAGE_KEY);
     if (formatSelect && savedFormat && Array.from(formatSelect.options).some(opt => opt.value === savedFormat)) {
         formatSelect.value = savedFormat;
+    }
+
+    const carryForwardInput = document.getElementById('carryForwardLoss');
+    const savedCarryForward = getLocalStorageValue(CARRY_FORWARD_STORAGE_KEY);
+    if (carryForwardInput && savedCarryForward !== null) {
+        const parsed = parseFloat(savedCarryForward);
+        if (Number.isFinite(parsed) && parsed >= 0) {
+            carryForwardInput.value = parsed;
+        }
     }
 }
 
@@ -281,6 +291,13 @@ function initializeTrading212App() {
             if (taxYearInput.value) {
                 setLocalStorageValue(TAX_YEAR_STORAGE_KEY, taxYearInput.value);
             }
+        });
+    }
+
+    const carryForwardInput = document.getElementById('carryForwardLoss');
+    if (carryForwardInput && typeof carryForwardInput.addEventListener === 'function') {
+        carryForwardInput.addEventListener('change', () => {
+            setLocalStorageValue(CARRY_FORWARD_STORAGE_KEY, carryForwardInput.value);
         });
     }
 

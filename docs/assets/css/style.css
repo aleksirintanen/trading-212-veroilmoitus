@@ -720,6 +720,9 @@
             display: block;
         }
 
+        .carry-forward-row { display: none; }
+        .carry-forward-row.show { display: flex; }
+
         .support-creator {
             margin-top: 24px;
             text-align: center;

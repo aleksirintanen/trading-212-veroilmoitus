@@ -350,7 +350,12 @@ function calculateTaxes() {
 
                 const custodyDeductible = Math.max(0, custodyFees - taxRules.custodyDeductibleExcess);
                 const netCapitalIncome = netGains + dividendsTaxable + interestIncome - custodyDeductible;
-                const estimatedTax = estimateCapitalTax(netCapitalIncome, taxRules);
+
+                const carryForwardLossRaw = parseFloat(String(document.getElementById('carryForwardLoss')?.value || '0').replace(',', '.')) || 0;
+                const carryForwardLoss = Math.max(0, Number.isFinite(carryForwardLossRaw) ? carryForwardLossRaw : 0);
+                const carryForwardUsed = Math.min(carryForwardLoss, Math.max(0, netCapitalIncome));
+                const carryForwardRemaining = carryForwardLoss - carryForwardUsed;
+                const estimatedTax = estimateCapitalTax(Math.max(0, netCapitalIncome - carryForwardUsed), taxRules);
 
                 document.getElementById('totalGains').textContent = formatCurrency(totalGains);
                 document.getElementById('totalGains').className = 'summary-item-value positive';
@@ -369,6 +374,23 @@ function calculateTaxes() {
 
                 document.getElementById('netCapitalIncome').textContent = formatCurrency(netCapitalIncome);
                 document.getElementById('netCapitalIncome').className = netCapitalIncome >= 0 ? 'summary-item-value positive' : 'summary-item-value negative';
+
+                const carryForwardAppliedRow = document.getElementById('carryForwardAppliedRow');
+                if (carryForwardAppliedRow?.classList) {
+                    carryForwardAppliedRow.classList.toggle('show', carryForwardUsed > 0);
+                }
+                const carryForwardAppliedEl = document.getElementById('carryForwardApplied');
+                if (carryForwardAppliedEl) {
+                    carryForwardAppliedEl.textContent = `−${formatCurrency(carryForwardUsed)}`;
+                }
+                const carryForwardRemainingRow = document.getElementById('carryForwardRemainingRow');
+                if (carryForwardRemainingRow?.classList) {
+                    carryForwardRemainingRow.classList.toggle('show', carryForwardRemaining > 0.005);
+                }
+                const carryForwardRemainingEl = document.getElementById('carryForwardRemainingAmount');
+                if (carryForwardRemainingEl) {
+                    carryForwardRemainingEl.textContent = formatCurrency(carryForwardRemaining);
+                }
 
                 document.getElementById('estimatedTax').textContent = formatCurrency(estimatedTax);
                 document.getElementById('estimatedTax').className = 'summary-item-value';
@@ -609,6 +631,9 @@ function calculateTaxes() {
                     custodyFees: custodyFees,
                     custodyDeductible: custodyDeductible,
                     netCapitalIncome: netCapitalIncome,
+                    carryForwardLoss: carryForwardLoss,
+                    carryForwardUsed: carryForwardUsed,
+                    carryForwardRemaining: carryForwardRemaining,
                     estimatedTax: estimatedTax,
                     taxRuleYearApplied: taxRuleYear,
                     taxRulesApplied: taxRules,

@@ -79,6 +79,11 @@
                         <label for="taxYear">Verovuosi</label>
                         <input type="number" id="taxYear" value="2025" min="2000" max="2030">
                     </div>
+                    <div class="form-group">
+                        <label for="carryForwardLoss">Vahvistetut tappiot (€)</label>
+                        <input type="number" id="carryForwardLoss" value="0" min="0" step="0.01">
+                        <div class="help-text">Pääomatulolajin vahvistetut tappiot edellisiltä vuosilta (enintään 5 v.). Jätä 0, jos ei ole.</div>
+                    </div>
                 </div>
 
                 <div class="csv-preview-controls">
@@ -306,6 +311,14 @@
                         <div class="summary-item">
                             <div class="summary-item-label">Pääomatulo yhteensä</div>
                             <div class="summary-item-value" id="netCapitalIncome">0.00 €</div>
+                        </div>
+                        <div class="summary-item carry-forward-row" id="carryForwardAppliedRow">
+                            <div class="summary-item-label">Tappiontasaus</div>
+                            <div class="summary-item-value negative" id="carryForwardApplied">0.00 €</div>
+                        </div>
+                        <div class="summary-item carry-forward-row" id="carryForwardRemainingRow">
+                            <div class="summary-item-label">Tappiontasausta jäljellä (siirtyy)</div>
+                            <div class="summary-item-value" id="carryForwardRemainingAmount">0.00 €</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-item-label">Arvioitu pääomatuloverot</div>
