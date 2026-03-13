@@ -405,6 +405,9 @@
                 summaryRows.push(['Tappiontasausta jäljellä (siirtyy)', euro(results.carryForwardRemaining)]);
             }
         }
+        if ((results.withholdingCredit || 0) > 0.005) {
+            summaryRows.push(['Lähdevero (hyvitys)', `−${euro(results.withholdingCredit)}`]);
+        }
         summaryRows.push(['Arvioitu pääomatulovero', euro(results.estimatedTax)]);
         addKeyValueRows(summaryRows);
 

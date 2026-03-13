@@ -722,6 +722,8 @@
 
         .carry-forward-row { display: none; }
         .carry-forward-row.show { display: flex; }
+        .withholding-tax-row { display: none; }
+        .withholding-tax-row.show { display: flex; }
 
         .support-creator {
             margin-top: 24px;

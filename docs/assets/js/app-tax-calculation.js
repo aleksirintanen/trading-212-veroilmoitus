@@ -227,6 +227,7 @@ function calculateTaxes() {
 
                 let dividendsGross = 0;
                 let dividendsTaxable = 0;
+                let withholdingTaxPaid = 0;
                 let interestIncome = 0;
                 let custodyFees = 0;
 
@@ -305,14 +306,21 @@ function calculateTaxes() {
 
                     } else if (type === 'DIVIDEND') {
                         if (d.getFullYear() === year) {
-                            const gross = format === 'trading212' ? transaction.gross_total_eur : transaction.price_eur;
-                            dividendsGross += gross;
-                            dividendsTaxable += gross * taxRules.listedDividendTaxableShare;
+                            const netAmount = format === 'trading212' ? transaction.gross_total_eur : transaction.price_eur;
+                            const withholding = transaction.withholding_tax_eur || 0;
+                            // For Trading 212, Gross Total = net credited after withholding.
+                            // True gross (before tax) = net + withholding.
+                            const trueGross = netAmount + withholding;
+                            dividendsGross += trueGross;
+                            dividendsTaxable += trueGross * taxRules.listedDividendTaxableShare;
+                            withholdingTaxPaid += withholding;
                             dividendRows.push({
                                 date: d,
                                 symbol: symbol,
                                 symbolName: symbolNames[symbol] || symbolName || '',
-                                amount: gross
+                                amount: trueGross,
+                                netAmount: netAmount,
+                                withholdingTax: withholding
                             });
                         }
 
@@ -355,7 +363,9 @@ function calculateTaxes() {
                 const carryForwardLoss = Math.max(0, Number.isFinite(carryForwardLossRaw) ? carryForwardLossRaw : 0);
                 const carryForwardUsed = Math.min(carryForwardLoss, Math.max(0, netCapitalIncome));
                 const carryForwardRemaining = carryForwardLoss - carryForwardUsed;
-                const estimatedTax = estimateCapitalTax(Math.max(0, netCapitalIncome - carryForwardUsed), taxRules);
+                const grossEstimatedTax = estimateCapitalTax(Math.max(0, netCapitalIncome - carryForwardUsed), taxRules);
+                const withholdingCredit = Math.min(withholdingTaxPaid, Math.max(0, grossEstimatedTax));
+                const estimatedTax = Math.max(0, grossEstimatedTax - withholdingCredit);
 
                 document.getElementById('totalGains').textContent = formatCurrency(totalGains);
                 document.getElementById('totalGains').className = 'summary-item-value positive';
@@ -368,6 +378,10 @@ function calculateTaxes() {
 
                 document.getElementById('dividendGross').textContent = formatCurrency(dividendsGross);
                 document.getElementById('dividendTaxable').textContent = formatCurrency(dividendsTaxable);
+                const dividendWithholdingEl = document.getElementById('dividendWithholding');
+                if (dividendWithholdingEl) {
+                    dividendWithholdingEl.textContent = formatCurrency(withholdingTaxPaid);
+                }
                 document.getElementById('interestIncome').textContent = formatCurrency(interestIncome);
                 document.getElementById('custodyFees').textContent = formatCurrency(custodyFees);
                 document.getElementById('deductibleFees').textContent = formatCurrency(custodyDeductible);
@@ -390,6 +404,15 @@ function calculateTaxes() {
                 const carryForwardRemainingEl = document.getElementById('carryForwardRemainingAmount');
                 if (carryForwardRemainingEl) {
                     carryForwardRemainingEl.textContent = formatCurrency(carryForwardRemaining);
+                }
+
+                const withholdingRow = document.getElementById('withholdingTaxRow');
+                if (withholdingRow?.classList) {
+                    withholdingRow.classList.toggle('show', withholdingCredit > 0.005);
+                }
+                const withholdingEl = document.getElementById('withholdingTaxCredit');
+                if (withholdingEl) {
+                    withholdingEl.textContent = `−${formatCurrency(withholdingCredit)}`;
                 }
 
                 document.getElementById('estimatedTax').textContent = formatCurrency(estimatedTax);
@@ -581,6 +604,16 @@ function calculateTaxes() {
                         amountCell.textContent = formatCurrency(dividend.amount);
                         row.appendChild(amountCell);
 
+                        const withholdingCell = document.createElement('td');
+                        withholdingCell.classList.add('amount-cell');
+                        withholdingCell.textContent = formatCurrency(dividend.withholdingTax || 0);
+                        row.appendChild(withholdingCell);
+
+                        const netCell = document.createElement('td');
+                        netCell.classList.add('amount-cell');
+                        netCell.textContent = formatCurrency(dividend.netAmount ?? dividend.amount);
+                        row.appendChild(netCell);
+
                         dividendsBody.appendChild(row);
                     }
                 }
@@ -621,6 +654,8 @@ function calculateTaxes() {
                     netGains: netGains,
                     dividendsGross: dividendsGross,
                     dividendsTaxable: dividendsTaxable,
+                    withholdingTaxPaid: withholdingTaxPaid,
+                    withholdingCredit: withholdingCredit,
                     interestIncome: interestIncome,
                     dividends: dividendRows,
                     interests: interestRows,

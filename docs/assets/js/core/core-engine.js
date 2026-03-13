@@ -582,6 +582,13 @@
                 const qty = parseNumberField(row['no. of shares'], 'No. of shares', rowNumber, true);
                 const grossTotal = parseNumberField(row['gross total'], 'Gross Total', rowNumber, true);
                 const fxFee = parseNumberField(row['currency conversion fee'], 'Currency conversion fee', rowNumber, true);
+                const exchangeRate = parseNumberField(row['exchange rate'], 'Exchange rate', rowNumber, true);
+                const withholdingRaw = parseNumberField(row['withholding tax'], 'Withholding tax', rowNumber, true);
+                const withholdingCurrency = String(row['currency (withholding tax)'] || '').trim().toUpperCase();
+                const withholdingAbs = Math.abs(withholdingRaw || 0);
+                const withholdingTaxEur = (withholdingAbs === 0 || withholdingCurrency === '' || withholdingCurrency === 'EUR')
+                    ? withholdingAbs
+                    : withholdingAbs * (exchangeRate > 0 ? exchangeRate : 1);
 
                 if (!action) {
                     throw new Error(`Rivi ${rowNumber}: kenttä "Action" puuttuu`);
@@ -613,7 +620,8 @@
                         symbolName: symbolName,
                         qty: qty,
                         gross_total_eur: decimalAbs(grossTotal),
-                        fx_fee_eur: decimalAbs(fxFee)
+                        fx_fee_eur: decimalAbs(fxFee),
+                        withholding_tax_eur: withholdingTaxEur
                     });
                 }
             } catch (error) {

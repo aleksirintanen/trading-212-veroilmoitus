@@ -234,6 +234,10 @@
                             <div class="summary-item-label">Osingot (veronalainen 85%)</div>
                             <div class="summary-item-value" id="dividendTaxable">0.00 €</div>
                         </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Lähdevero yhteensä (€)</div>
+                            <div class="summary-item-value" id="dividendWithholding">0.00 €</div>
+                        </div>
                     </div>
 
                     <div class="summary-actions">
@@ -251,6 +255,8 @@
                                         <th>Päivä</th>
                                         <th>Arvopaperi</th>
                                         <th>Brutto-osinko</th>
+                                        <th>Lähdevero (€)</th>
+                                        <th>Netto (saatu)</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -319,6 +325,10 @@
                         <div class="summary-item carry-forward-row" id="carryForwardRemainingRow">
                             <div class="summary-item-label">Tappiontasausta jäljellä (siirtyy)</div>
                             <div class="summary-item-value" id="carryForwardRemainingAmount">0.00 €</div>
+                        </div>
+                        <div class="summary-item withholding-tax-row" id="withholdingTaxRow">
+                            <div class="summary-item-label">Lähdevero (hyvitys)</div>
+                            <div class="summary-item-value negative" id="withholdingTaxCredit">0.00 €</div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-item-label">Arvioitu pääomatuloverot</div>
