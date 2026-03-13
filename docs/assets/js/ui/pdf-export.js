@@ -390,16 +390,23 @@
         );
 
         addSectionTitle('Yhteenveto');
-        addKeyValueRows([
+        const summaryRows = [
             ['Luovutusvoitot', euro(results.totalGains)],
             ['Luovutustappiot', euro(results.totalLosses)],
             ['Netto luovutusvoitto', euro(results.netGains)],
             ['Osingot (brutto)', euro(results.dividendsGross)],
             ['Osingot (veronalainen)', euro(results.dividendsTaxable)],
             ['Korkotulot', euro(results.interestIncome)],
-            ['Pääomatulo yhteensä', euro(results.netCapitalIncome)],
-            ['Arvioitu pääomatulovero', euro(results.estimatedTax)]
-        ]);
+            ['Pääomatulo yhteensä', euro(results.netCapitalIncome)]
+        ];
+        if ((results.carryForwardLoss || 0) > 0) {
+            summaryRows.push(['Tappiontasaus (käytetty)', `−${euro(results.carryForwardUsed)}`]);
+            if ((results.carryForwardRemaining || 0) > 0.005) {
+                summaryRows.push(['Tappiontasausta jäljellä (siirtyy)', euro(results.carryForwardRemaining)]);
+            }
+        }
+        summaryRows.push(['Arvioitu pääomatulovero', euro(results.estimatedTax)]);
+        addKeyValueRows(summaryRows);
 
         addSectionTitle('Kuluyhteenveto');
         addKeyValueRows([
